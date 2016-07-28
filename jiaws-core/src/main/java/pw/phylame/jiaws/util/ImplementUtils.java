@@ -17,7 +17,7 @@ public final class ImplementUtils {
     }
 
     /**
-     * Throws an <code>IllegalStateException<code> indicate a TODO
+     * Throws an <code>IllegalStateException<code> indicate a TODO.
      * 
      * @param message
      *            the error message
@@ -26,5 +26,15 @@ public final class ImplementUtils {
      */
     public static <T> T raiseForTodo(String message) throws IllegalStateException {
         throw new IllegalStateException(message);
+    }
+
+    /**
+     * Throws an <code>IllegalStateException<code> when developing method.
+     * 
+     * @return nothing returned(used for invoker)
+     */
+    public static <T> T raiseForImpl() {
+        String invokerName = Thread.currentThread().getStackTrace()[2].getMethodName();
+        return raiseForTodo(String.format("Method '%s' is under development", invokerName));
     }
 }
