@@ -14,4 +14,14 @@ public class ServerConfig {
 
     @NonNull
     private Connector connector;
+
+    /**
+     * Limit of request header count.
+     */
+    private int maxRequestHeaderCount = 100;
+
+    /**
+     * Limit of size of each request header.
+     */
+    private int maxRequestHeaderSize = 8190;
 }

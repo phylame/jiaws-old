@@ -44,6 +44,10 @@ import static pw.phylame.jiaws.util.ImplementUtils.*;
 
 public class HttpServletRequestImpl extends ServletObject implements HttpServletRequest {
     @Setter
+    @Getter
+    private String method;
+
+    @Setter
     private IPTuple localIP;
 
     @Setter
@@ -314,11 +318,6 @@ public class HttpServletRequestImpl extends ServletObject implements HttpServlet
     public int getIntHeader(String name) {
         String s = getHeader(name);
         return s != null ? Integer.parseInt(s) : -1;
-    }
-
-    @Override
-    public String getMethod() {
-        return null;
     }
 
     @Override

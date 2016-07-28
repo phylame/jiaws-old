@@ -2,15 +2,18 @@ package pw.phylame.jiaws.core;
 
 import java.io.IOException;
 
+import lombok.Getter;
 import lombok.NonNull;
 import pw.phylame.jiaws.core.impl.LifecycleSupport;
 import pw.phylame.jiaws.util.LifecycleStateException;
 import pw.phylame.jiaws.util.Validator;
 
 public class Server extends LifecycleSupport {
+    @Getter
+    @NonNull
     private final ServerConfig config;
 
-    public Server(@NonNull ServerConfig config) {
+    public Server(ServerConfig config) {
         this.config = config;
         init();
     }

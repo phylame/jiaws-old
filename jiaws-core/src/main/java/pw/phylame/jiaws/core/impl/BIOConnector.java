@@ -28,7 +28,10 @@ public class BIOConnector extends AbstractConnector {
         serverSocket.bind(address);
         val dispatcher = config.getDispatcher();
         while (!cancelled) {
-            dispatcher.dispatch(serverSocket.accept());
+            val socket = serverSocket.accept();
+            if (socket.isConnected()) {
+                dispatcher.dispatch(socket);
+            }
         }
     }
 
