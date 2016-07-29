@@ -7,4 +7,6 @@ import lombok.Setter;
 @Getter
 public class ConnectorConfig {
     private RequestDispatcher dispatcher;
+
+    private ProtocolProcessor processor;
 }

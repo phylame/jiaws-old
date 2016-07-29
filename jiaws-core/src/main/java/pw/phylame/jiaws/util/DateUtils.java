@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import lombok.NonNull;
 
@@ -16,7 +17,7 @@ public final class DateUtils {
     private static final LazyValue<DateFormat> gmtFormatter = new LazyValue<>(new Provider<DateFormat>() {
         @Override
         public DateFormat provide() {
-            return new SimpleDateFormat(GMT_FORMAT);
+            return new SimpleDateFormat(GMT_FORMAT, Locale.ENGLISH);
         }
 
     });

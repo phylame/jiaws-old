@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import lombok.val;
+import pw.phylame.jiaws.core.AbstractConnector;
 import pw.phylame.jiaws.core.ConnectorConfig;
 
 public class BIOConnector extends AbstractConnector {
@@ -22,15 +23,22 @@ public class BIOConnector extends AbstractConnector {
     @Override
     protected void doStart() throws IOException {
         super.doStart();
-        System.out.println("Connector starting...");
+        logger.info("{}@{} starting...", getClass().getSimpleName(), hashCode());
         serverSocket = new ServerSocket();
-        System.out.printf("Binding address %s...\n", address);
+        logger.info("Binding address {}...", address);
         serverSocket.bind(address);
+        val processor = config.getProcessor();
         val dispatcher = config.getDispatcher();
         while (!cancelled) {
             val socket = serverSocket.accept();
             if (socket.isConnected()) {
-                dispatcher.dispatch(socket);
+                val pair = processor.parse(socket);
+                // bad request
+                if (pair == null) {
+                    continue;
+                }
+                socket.shutdownInput();
+                dispatcher.dispatch(pair.getFirst(), pair.getSecond(), processor, socket);
             }
         }
     }

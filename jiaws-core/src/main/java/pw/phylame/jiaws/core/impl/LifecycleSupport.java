@@ -2,11 +2,16 @@ package pw.phylame.jiaws.core.impl;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import lombok.Getter;
 import pw.phylame.jiaws.core.Lifecycle;
 import pw.phylame.jiaws.util.LifecycleStateException;
 
 public abstract class LifecycleSupport implements Lifecycle {
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+
     /**
      * Keeps the start/stop status.
      */

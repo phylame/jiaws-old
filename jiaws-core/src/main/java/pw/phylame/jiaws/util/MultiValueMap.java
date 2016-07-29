@@ -56,7 +56,7 @@ public class MultiValueMap<K, V> implements Map<K, Collection<V>> {
         return map.put(key, value);
     }
 
-    public void putOne(K key, V value) {
+    public void addOne(K key, V value) {
         Collection<V> c = get(key);
         if (c == null) {
             c = new LinkedList<>();
@@ -77,7 +77,7 @@ public class MultiValueMap<K, V> implements Map<K, Collection<V>> {
 
     public void update(Map<K, V> m) {
         for (Map.Entry<K, V> e : m.entrySet()) {
-            putOne(e.getKey(), e.getValue());
+            addOne(e.getKey(), e.getValue());
         }
     }
 

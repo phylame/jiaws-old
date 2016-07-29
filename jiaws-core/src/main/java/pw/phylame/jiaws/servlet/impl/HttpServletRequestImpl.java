@@ -44,10 +44,6 @@ import static pw.phylame.jiaws.util.ImplementUtils.*;
 
 public class HttpServletRequestImpl extends ServletObject implements HttpServletRequest {
     @Setter
-    @Getter
-    private String method;
-
-    @Setter
     private IPTuple localIP;
 
     @Setter
@@ -61,12 +57,23 @@ public class HttpServletRequestImpl extends ServletObject implements HttpServlet
 
     @Setter
     @Getter
-    private String protocol;
+    private String method;
 
     @Setter
-    private MultiValueMap<String, String> parameters;
+    private String path;
 
-    private MultiValueMap<String, String> headers;
+    @Setter
+    private String query;
+
+    @Setter
+    @Getter
+    private String protocol;
+
+    @Getter
+    private MultiValueMap<String, String> parameters = new MultiValueMap<>();
+
+    @Getter
+    private MultiValueMap<String, String> headers = new MultiValueMap<>();
 
     /**
      * Indicates that the input is processed.
