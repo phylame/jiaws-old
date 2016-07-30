@@ -1,7 +1,25 @@
-package pw.phylame.jiaws.core;
+/*
+ * Copyright 2016 Peng Wan <phylame@163.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package pw.phylame.jiaws.servlet.impl;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
@@ -9,27 +27,14 @@ import javax.servlet.ServletResponse;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
-import pw.phylame.jiaws.util.HttpUtils;
+import lombok.val;
 import pw.phylame.jiaws.util.StringUtils;
 
 public class AbstractServletResponse implements ServletResponse {
 
-    @Setter
-    @NonNull
     private String characterEncoding = null;
 
     private String contentType = null;
-
-    /**
-     * Indicates that the body is written by getWriter or getOutputStream.
-     */
-    private boolean bodyWritten = false;
-
-    /**
-     * Indicates that the body is written by getWriter.
-     */
-    private boolean writtenByWriter = false;
 
     @Getter
     private long contentLengthLong;
@@ -43,6 +48,15 @@ public class AbstractServletResponse implements ServletResponse {
     @Getter
     private boolean committed = false;
 
+    /**
+     * State of the response. 0: fresh, 1: written by getWriter, 2: written by getOutputStream
+     */
+    private int state = FRESH;
+
+    private static final int FRESH = 0;
+    private static final int BY_GET_WRITER = 1;
+    private static final int BY_GET_OUTPUT_STREAM = 2;
+
     @Getter
     private Locale locale = Locale.getDefault();
 
@@ -53,27 +67,34 @@ public class AbstractServletResponse implements ServletResponse {
 
     @Override
     public String getContentType() {
-        if (contentType == null) {
-            return null;
+        if (contentType == null || contentType.contains("charset=") || characterEncoding == null) {
+            return contentType;
         }
-        return contentType.contains("charset=") || characterEncoding == null ? contentType
-                : contentType + "; charset=" + characterEncoding;
+        return contentType + "; charset=" + characterEncoding;
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
         ensureBodyFresh();
-        bodyWritten = true;
-        writtenByWriter = false;
+        state = BY_GET_OUTPUT_STREAM;
         return null;
     }
 
     @Override
     public PrintWriter getWriter() throws IOException {
         ensureBodyFresh();
-        bodyWritten = true;
-        writtenByWriter = true;
+        state = BY_GET_WRITER;
+        val encoding = getCharacterEncoding();
+        if (!Charset.isSupported(encoding)) {
+            throw new UnsupportedEncodingException(String.format("Character encoding '%s' is unsupported", encoding));
+        }
         return null;
+    }
+
+    @Override
+    public void setCharacterEncoding(@NonNull String charset) {
+        // todo check committed
+        characterEncoding = charset;
     }
 
     @Override
@@ -82,24 +103,25 @@ public class AbstractServletResponse implements ServletResponse {
     }
 
     @Override
-    public void setContentType(String type) {
+    public void setContentType(@NonNull String type) {
         contentType = type;
-        if (!bodyWritten || !isCommitted()) {
-            String encoding = HttpUtils.getCharsetForContentType(type);
-            if (type != null) {
-                setCharacterEncoding(type);
-            }
+        val encoding = StringUtils.getValueOfName(type, "charset", ";", false);
+        if (encoding != null) {
+            setCharacterEncoding(encoding);
         }
     }
 
     @Override
     public void setBufferSize(int size) {
         ensureNotCommitted();
+        // todo: resize buffer size
+        bufferSize = size;
     }
 
     @Override
     public void flushBuffer() throws IOException {
         // writeStatusAndHeaders();
+        // todo: write all data to client
     }
 
     // protected abstract void writeStatusAndHeaders() throws IOException;
@@ -107,6 +129,7 @@ public class AbstractServletResponse implements ServletResponse {
     @Override
     public void resetBuffer() {
         ensureNotCommitted();
+        // todo: keep status code and headers, clear body content in buffer
     }
 
     @Override
@@ -132,8 +155,8 @@ public class AbstractServletResponse implements ServletResponse {
     }
 
     private void ensureBodyFresh() throws IllegalStateException {
-        if (bodyWritten) {
-            throw new IllegalStateException((writtenByWriter ? "getWriter" : "getOutputStream")
+        if (state != FRESH) {
+            throw new IllegalStateException((state == BY_GET_WRITER ? "getWriter" : "getOutputStream")
                     + "() has already been called for this response");
         }
     }
