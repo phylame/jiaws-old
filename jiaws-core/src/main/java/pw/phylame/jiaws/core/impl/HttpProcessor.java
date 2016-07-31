@@ -17,10 +17,8 @@
 package pw.phylame.jiaws.core.impl;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
@@ -37,8 +35,8 @@ import lombok.val;
 import pw.phylame.jiaws.core.ProtocolProcessor;
 import pw.phylame.jiaws.core.Server;
 import pw.phylame.jiaws.core.ServerAware;
-import pw.phylame.jiaws.servlet.impl.HttpServletRequestImpl;
-import pw.phylame.jiaws.servlet.impl.HttpServletResponseImpl;
+import pw.phylame.jiaws.servlet.HttpServletRequestImpl;
+import pw.phylame.jiaws.servlet.HttpServletResponseImpl;
 import pw.phylame.jiaws.util.DateUtils;
 import pw.phylame.jiaws.util.HttpUtils;
 import pw.phylame.jiaws.util.IPTuple;

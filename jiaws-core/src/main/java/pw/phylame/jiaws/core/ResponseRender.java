@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Peng Wan <phylame@163.com>
+ * Copyright 2014-2016 Peng Wan <phylame@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package pw.phylame.jiaws.servlet.impl;
+package pw.phylame.jiaws.core;
 
-import javax.servlet.ServletContext;
+import javax.servlet.ServletResponse;
+import java.io.IOException;
 
-public interface ServletContextAware {
-    void setServletContext(ServletContext context);
+public interface ResponseRender {
+    void render(ServletResponse response) throws IOException;
 }

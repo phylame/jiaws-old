@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Peng Wan <phylame@163.com>
+ * Copyright 2014-2016 Peng Wan <phylame@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-package pw.phylame.jiaws.servlet.impl;
+package pw.phylame.jiaws.apraw.http11;
 
-import java.lang.ref.WeakReference;
+import pw.phylame.jiaws.apraw.SocketWriter;
 
-import javax.servlet.ServletContext;
-
-import lombok.NonNull;
-
-public class ServletObject extends AttributeSupport implements ServletContextAware {
-    private WeakReference<ServletContext> contextRef;
-
-    public ServletContext getServletContext() {
-        return contextRef.get();
-    }
-
-    @Override
-    public void setServletContext(@NonNull ServletContext context) {
-        contextRef = new WeakReference<ServletContext>(context);
-    }
+public class Http11ResponseWriter extends SocketWriter {
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Peng Wan <phylame@163.com>
+ * Copyright 2014-2016 Peng Wan <phylame@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package pw.phylame.jiaws.servlet.impl;
+package pw.phylame.jiaws.servlet;
 
 import static pw.phylame.jiaws.util.ImplementUtils.raiseForDeprecated;
 import static pw.phylame.jiaws.util.ImplementUtils.raiseForTodo;

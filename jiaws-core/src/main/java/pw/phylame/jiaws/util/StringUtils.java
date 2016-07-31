@@ -26,6 +26,14 @@ public final class StringUtils {
     private StringUtils() {
     }
 
+    public static boolean isEmpty(CharSequence cs) {
+        return cs == null || cs.length() == 0;
+    }
+
+    public static boolean isNotEmpty(CharSequence cs) {
+        return !isEmpty(cs);
+    }
+
     public static String getFirstPartOf(@NonNull String str, @NonNull String sep) {
         int index = str.indexOf(sep);
         return index < 0 ? str : str.substring(0, index);
