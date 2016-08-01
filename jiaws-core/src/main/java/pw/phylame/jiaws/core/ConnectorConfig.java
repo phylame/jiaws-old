@@ -22,7 +22,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ConnectorConfig {
-    private RequestDispatcher dispatcher;
+    private Dispatcher dispatcher;
 
     private ProtocolProcessor processor;
 }

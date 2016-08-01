@@ -1,50 +1,26 @@
-/*
- * Copyright 2016 Peng Wan <phylame@163.com>
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
-package pw.phylame.jiaws.core.impl;
+package pw.phylame.jiaws.spike.http11;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.net.Socket;
-import java.util.Date;
-
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lombok.val;
-import pw.phylame.jiaws.core.ProtocolProcessor;
 import pw.phylame.jiaws.core.Server;
 import pw.phylame.jiaws.core.ServerAware;
 import pw.phylame.jiaws.io.ResponseOutputStream;
 import pw.phylame.jiaws.servlet.HttpServletRequestImpl;
 import pw.phylame.jiaws.servlet.http.HttpServletResponseImpl;
-import pw.phylame.jiaws.util.DateUtils;
-import pw.phylame.jiaws.util.HttpUtils;
+import pw.phylame.jiaws.spike.ProtocolParser;
 import pw.phylame.jiaws.util.IPTuple;
 import pw.phylame.jiaws.util.Pair;
 import pw.phylame.jiaws.util.ProtocolException;
 
-public class HttpProcessor implements ProtocolProcessor, ServerAware {
+public class Http11RequestReader implements ProtocolParser, ServerAware {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private WeakReference<Server> serverRef;
@@ -290,83 +266,4 @@ public class HttpProcessor implements ProtocolProcessor, ServerAware {
         request.setRemoteIP(new IPTuple(socket.getInetAddress(), socket.getPort()));
     }
 
-    @Override
-    public void render(ServletResponse response, Socket socket) throws IOException {
-        if (!(response instanceof HttpServletResponseImpl)) {
-            throw new IllegalArgumentException(
-                    String.format("response to %s must be HttpServletResponseImpl", getClass().getName()));
-        }
-        HttpServletResponseImpl httpResponse = (HttpServletResponseImpl) response;
-        // BufferedWriter writer = new BufferedWriter(
-        // new OutputStreamWriter(socket.getOutputStream(),
-        // httpResponse.getCharacterEncoding()));
-        //
-        Writer writer = new StringWriter();
-        writeStatusLine(writer, httpResponse);
-        writeHeaderFields(writer, httpResponse);
-        System.out.println(writer.toString());
-    }
-
-    public static final String CRLF = "\r\n";
-
-    private void writeStatusLine(Writer writer, HttpServletResponseImpl response) throws IOException {
-        writer.append("HTTP/1.1 ").append(Integer.toString(response.getStatus())).append(' ')
-                .append(HttpUtils.getStatusReason(response.getStatus())).append(CRLF);
-    }
-
-    private void writeHeaderFields(Writer writer, HttpServletResponseImpl response) throws IOException {
-        // general header
-        writeHeaderField(writer, "Date", DateUtils.toGMT(new Date()));
-        // response header
-        writeHeaderField(writer, "Server", serverRef.get().getAssembly().getVersionInfo());
-        // entity header
-        if (response.getContentEncoding() != null) {
-            writeHeaderField(writer, "Content-Encoding", response.getContentEncoding());
-        }
-        writeHeaderField(writer, "Content-Length", Long.toString(response.getContentLengthLong()));
-        if (response.getContentLengthLong() > 0) {
-            writeHeaderField(writer, "Content-Type", response.getContentType());
-        }
-        for (Cookie cookie : response.getCookies()) {
-            writeHeaderField(writer, "Set-Cookie", renderCookie(cookie));
-        }
-        for (val e : response.getInnerHeaders().entrySet()) {
-            String name = e.getKey();
-            for (String value : e.getValue()) {
-                writeHeaderField(writer, name, value);
-            }
-        }
-    }
-
-    private void writeHeaderField(Writer writer, String name, String value) throws IOException {
-        writer.append(name).append(": ").append(value).append(CRLF);
-    }
-
-    private String renderCookie(Cookie cookie) {
-        StringBuilder b = new StringBuilder();
-        b.append(cookie.getName()).append('=').append(cookie.getValue());
-        if (cookie.getMaxAge() != -1) {
-            b.append("; Max-Age=").append(cookie.getMaxAge());
-        }
-        if (cookie.getDomain() != null) {
-            b.append("; Domain=").append(cookie.getDomain());
-        }
-        if (cookie.getPath() != null) {
-            b.append("; Path=").append(cookie.getPath());
-        }
-        if (cookie.getComment() != null) {
-            b.append("; Comment=").append(cookie.getComment());
-        }
-        if (cookie.getSecure()) {
-            b.append("; Secure");
-        }
-        if (cookie.isHttpOnly()) {
-            b.append("; HttpOnly");
-        }
-        return b.toString();
-    }
-
-    private void sendError(String message) throws IOException {
-
-    }
 }

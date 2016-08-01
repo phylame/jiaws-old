@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package pw.phylame.jiaws.apraw;
+package pw.phylame.jiaws.spike;
 
 import lombok.NonNull;
 

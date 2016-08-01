@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-package pw.phylame.jiaws.apraw;
+package pw.phylame.jiaws.spike.http11;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletResponse;
-import java.io.IOException;
+import pw.phylame.jiaws.spike.SocketWriter;
 
-public interface ResponseWriter {
-    void setResponse(ServletResponse response);
+public class Http11ResponseWriter extends SocketWriter {
 
-    int getBufferSize();
-
-    void setBufferSize(int capacity);
-
-    void resetBuffer();
-
-    boolean isCommitted();
-
-    void flush() throws IOException;
-
-    ServletOutputStream openOutputStream() throws IOException;
 }

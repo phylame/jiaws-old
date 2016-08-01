@@ -1,17 +1,17 @@
 /*
  * Copyright 2016 Peng Wan <phylame@163.com>
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package pw.phylame.jiaws.core.impl;
@@ -26,12 +26,11 @@ import javax.servlet.ServletResponse;
 
 import lombok.AllArgsConstructor;
 import pw.phylame.jiaws.core.AbstractDispatcher;
-import pw.phylame.jiaws.core.ProtocolProcessor;
-import pw.phylame.jiaws.core.RequestDispatcher;
+import pw.phylame.jiaws.core.Dispatcher;
 import pw.phylame.jiaws.core.ServerAware;
 import pw.phylame.jiaws.util.Pair;
 
-public class ExecutorServiceDispatcher extends AbstractDispatcher implements RequestDispatcher, ServerAware {
+public class ExecutorServiceDispatcher extends AbstractDispatcher implements Dispatcher, ServerAware {
     private final ExecutorService executorService;
 
     public ExecutorServiceDispatcher(ExecutorService executorService) {
@@ -39,8 +38,8 @@ public class ExecutorServiceDispatcher extends AbstractDispatcher implements Req
     }
 
     @Override
-    public void dispatch(ServletRequest request, ServletResponse response, ProtocolProcessor processor, Socket socket) {
-        executorService.submit(new DispatcherTask(request, response, processor, socket));
+    protected void doService(ServletRequest request, ServletResponse response, Socket socket) throws Exception {
+        executorService.submit(new DispatcherTask(request, response, socket));
     }
 
     @Override
@@ -57,12 +56,12 @@ public class ExecutorServiceDispatcher extends AbstractDispatcher implements Req
     private class DispatcherTask implements Runnable {
         private ServletRequest request;
         private ServletResponse response;
-        private ProtocolProcessor processor;
         private Socket socket;
 
         @Override
         public void run() {
-            handleRequest(request, response, processor, socket);
+            handToServer(request, response);
+            cleanupSocket(socket);
         }
     }
 }

@@ -14,29 +14,37 @@
  * the License.
  */
 
-package pw.phylame.jiaws.core.impl;
+package pw.phylame.jiaws.core;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import pw.phylame.jiaws.core.AbstractDispatcher;
-import pw.phylame.jiaws.core.Dispatcher;
 import pw.phylame.jiaws.util.Pair;
 
-public class SingleThreadDispatcher extends AbstractDispatcher implements Dispatcher {
+/**
+ * Dispatches client request in some way.
+ * <p>
+ * How to dispatch the request is implemented by sub-class.
+ */
+public interface Dispatcher {
+    /**
+     * Dispatches specified client socket in one way.
+     * 
+     * @param socket
+     *            the socket to send response
+     * @throws IOException
+     *             if occur IO error
+     */
+    void dispatch(Socket socket) throws IOException;
 
-    @Override
-    protected void doService(ServletRequest request, ServletResponse response, Socket socket) throws Exception {
-        handToServer(request, response);
-        cleanupSocket(socket);
-    }
-
-    @Override
-    public List<Pair<ServletRequest, ServletResponse>> cancel() {
-        throw new UnsupportedOperationException("Unsupported cancel operation for single thread dispatcher");
-    }
-
+    /**
+     * Cancels all executions for socket.
+     * 
+     * @return list of request and response that never processed
+     */
+    List<Pair<ServletRequest, ServletResponse>> cancel();
 }

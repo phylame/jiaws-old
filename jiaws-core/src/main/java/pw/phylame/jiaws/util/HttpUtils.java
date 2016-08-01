@@ -26,7 +26,7 @@ public final class HttpUtils {
     private HttpUtils() {
     }
 
-    public static final String HTTP_STATUS_FILE = "/http-status.properties";
+    public static final String HTTP_STATUS_FILE = "/pw/phylame/jiaws/http/status.properties";
 
     private static final LazyValue<Properties> httpStatus = new LazyValue<>(new Provider<Properties>() {
         @Override

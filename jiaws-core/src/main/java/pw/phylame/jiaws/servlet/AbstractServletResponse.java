@@ -1,30 +1,21 @@
 /*
  * Copyright 2014-2016 Peng Wan <phylame@163.com>
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 
 package pw.phylame.jiaws.servlet;
 
-import lombok.Getter;
-import lombok.val;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import pw.phylame.jiaws.apraw.ResponseWriter;
-import pw.phylame.jiaws.util.StringUtils;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -32,10 +23,24 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Locale;
 
-public abstract class AbstractServletResponse implements ServletResponse {
+import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.val;
+import pw.phylame.jiaws.io.ResponseOutputStream;
+import pw.phylame.jiaws.io.ResponseWriteEvent;
+import pw.phylame.jiaws.io.ResponseWriteListener;
+import pw.phylame.jiaws.util.StringUtils;
+
+public abstract class AbstractServletResponse implements ServletResponse, ResponseWriteListener {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected ResponseWriter writer;
+    private final ResponseOutputStream out;
 
     private String characterEncoding = null;
 
@@ -44,10 +49,11 @@ public abstract class AbstractServletResponse implements ServletResponse {
      */
     private String contentType = null;
 
-    private long contentLength;
+    private long contentLength = -1L;
 
     /**
-     * State of the response. 0: fresh, 1: written by getWriter, 2: written by getOutputStream
+     * State of the response. 0: fresh, 1: written by getWriter, 2: written by
+     * getOutputStream
      */
     private int state = FRESH;
 
@@ -58,6 +64,11 @@ public abstract class AbstractServletResponse implements ServletResponse {
     @Getter
     private Locale locale = Locale.getDefault();
 
+    public AbstractServletResponse(@NonNull ResponseOutputStream out) {
+        this.out = out;
+        out.addResponseWriteListener(this);
+    }
+
     @Override
     public String getCharacterEncoding() {
         return characterEncoding != null ? characterEncoding : "ISO-8859-1";
@@ -65,8 +76,7 @@ public abstract class AbstractServletResponse implements ServletResponse {
 
     @Override
     public String getContentType() {
-        return contentType == null || characterEncoding == null
-                ? contentType
+        return contentType == null || characterEncoding == null ? contentType
                 : contentType + "; charset=" + characterEncoding;
     }
 
@@ -74,7 +84,7 @@ public abstract class AbstractServletResponse implements ServletResponse {
     public ServletOutputStream getOutputStream() throws IOException {
         ensureResponseFresh();
         state = BY_GET_OUTPUT_STREAM;
-        return writer.openOutputStream();
+        return new ServletResponseOutputStream(out);
     }
 
     @Override
@@ -87,8 +97,8 @@ public abstract class AbstractServletResponse implements ServletResponse {
             throw new UnsupportedEncodingException(String.format("Character encoding '%s' is unsupported", encoding));
         }
         state = BY_GET_WRITER;
-        // not auto flush
-        return new PrintWriter(new OutputStreamWriter(writer.openOutputStream(), encoding), false);
+        // no auto flush
+        return new PrintWriter(new OutputStreamWriter(new ServletResponseOutputStream(out), encoding), false);
     }
 
     @Override
@@ -123,13 +133,13 @@ public abstract class AbstractServletResponse implements ServletResponse {
 
     @Override
     public int getBufferSize() {
-        return writer.getBufferSize();
+        return out.getBufferSize();
     }
 
     @Override
     public void setBufferSize(int size) {
         ensureNotCommitted("Cannot set buffer size after response has been committed");
-        writer.setBufferSize(size);
+        out.setBufferSize(size);
     }
 
     @Override
@@ -137,24 +147,25 @@ public abstract class AbstractServletResponse implements ServletResponse {
         if (isCommitted()) {
             return;
         }
-        writer.flush();
+        out.flush();
     }
 
     @Override
     public void resetBuffer() {
         ensureNotCommitted("Cannot reset buffer after response has been committed");
-        // todo: keep status code and headers, clear body content in buffer
-        writer.resetBuffer();
+        out.resetBuffer();
     }
 
     @Override
     public boolean isCommitted() {
-        return writer.isCommitted();
+        return out.isFlushed();
     }
 
     @Override
     public void reset() {
         ensureNotCommitted("Cannot call reset() after response has been committed");
+        out.resetBuffer();
+        state = FRESH;
     }
 
     @Override
@@ -164,7 +175,17 @@ public abstract class AbstractServletResponse implements ServletResponse {
         }
     }
 
-    private void ensureNotCommitted(String message) throws IllegalStateException {
+    @Override
+    public void beforeWrite(ResponseWriteEvent e) {
+
+    }
+
+    @Override
+    public void afetWrite(ResponseWriteEvent e) {
+
+    }
+
+    protected void ensureNotCommitted(String message) throws IllegalStateException {
         if (isCommitted()) {
             throw new IllegalStateException(message);
         }
