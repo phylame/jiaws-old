@@ -17,8 +17,8 @@ import pw.phylame.jiaws.servlet.HttpServletRequestImpl;
 import pw.phylame.jiaws.servlet.http.HttpServletResponseImpl;
 import pw.phylame.jiaws.spike.ProtocolParser;
 import pw.phylame.jiaws.util.IPTuple;
-import pw.phylame.jiaws.util.Pair;
 import pw.phylame.jiaws.util.ProtocolException;
+import pw.phylame.jiaws.util.values.Pair;
 
 public class Http11RequestReader implements ProtocolParser, ServerAware {
     private final Logger logger = LoggerFactory.getLogger(getClass());

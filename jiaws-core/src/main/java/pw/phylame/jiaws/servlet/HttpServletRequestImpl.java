@@ -50,11 +50,11 @@ import lombok.Setter;
 import pw.phylame.jiaws.util.DateUtils;
 import pw.phylame.jiaws.util.Enumerations;
 import pw.phylame.jiaws.util.IPTuple;
-import pw.phylame.jiaws.util.LazyValue;
 import pw.phylame.jiaws.util.MultiValueMap;
-import pw.phylame.jiaws.util.MutableLazyValue;
 import pw.phylame.jiaws.util.Provider;
 import pw.phylame.jiaws.util.StringUtils;
+import pw.phylame.jiaws.util.values.LazyValue;
+import pw.phylame.jiaws.util.values.MutableLazyValue;
 
 import static pw.phylame.jiaws.util.ImplementUtils.*;
 

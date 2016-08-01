@@ -19,24 +19,24 @@ package pw.phylame.jiaws.core.impl;
 import java.net.Socket;
 import java.util.List;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 import pw.phylame.jiaws.core.AbstractDispatcher;
 import pw.phylame.jiaws.core.Dispatcher;
-import pw.phylame.jiaws.util.Pair;
+import pw.phylame.jiaws.spike.ProtocolParser;
+import pw.phylame.jiaws.util.Exceptions;
 
 public class SingleThreadDispatcher extends AbstractDispatcher implements Dispatcher {
 
-    @Override
-    protected void doService(ServletRequest request, ServletResponse response, Socket socket) throws Exception {
-        handToServer(request, response);
-        cleanupSocket(socket);
+    protected SingleThreadDispatcher(ProtocolParser parser) {
+        super(parser);
     }
 
     @Override
-    public List<Pair<ServletRequest, ServletResponse>> cancel() {
-        throw new UnsupportedOperationException("Unsupported cancel operation for single thread dispatcher");
+    public void dispatch(Socket socket) {
+        processSocket(socket);
     }
 
+    @Override
+    public List<Socket> cancel() {
+        throw Exceptions.forUnsupportedOperation("cancel operation of '%s' is unsupported", getClass().getName());
+    }
 }

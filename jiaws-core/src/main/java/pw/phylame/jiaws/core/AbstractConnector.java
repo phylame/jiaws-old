@@ -28,8 +28,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import pw.phylame.jiaws.core.impl.LifecycleSupport;
-import pw.phylame.jiaws.util.Pair;
 import pw.phylame.jiaws.util.Validator;
+import pw.phylame.jiaws.util.values.Pair;
 
 public abstract class AbstractConnector extends LifecycleSupport implements Connector, ServerAware {
     /**

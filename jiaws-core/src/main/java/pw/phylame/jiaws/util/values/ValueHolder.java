@@ -1,4 +1,6 @@
-package pw.phylame.jiaws.util;
+package pw.phylame.jiaws.util.values;
+
+import lombok.Getter;
 
 public abstract class ValueHolder<T> {
     protected T value;

@@ -14,13 +14,14 @@
  * the License.
  */
 
-package pw.phylame.jiaws.util;
+package pw.phylame.jiaws.util.values;
 
 import lombok.NonNull;
 import lombok.Synchronized;
+import pw.phylame.jiaws.util.Provider;
 
 public class LazyValue<T> extends ValueHolder<T> {
-    private boolean inited = false;
+    private boolean initialized = false;
 
     private Provider<T> provider;
 
@@ -36,14 +37,14 @@ public class LazyValue<T> extends ValueHolder<T> {
     }
 
     @Override
-    @Synchronized
     public T get() {
-        if (!inited) {
+        if (!initialized) {
             initValue();
         }
         return value;
     }
 
+    @Synchronized
     private void initValue() {
         try {
             value = provider.provide();

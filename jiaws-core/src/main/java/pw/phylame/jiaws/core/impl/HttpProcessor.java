@@ -41,8 +41,8 @@ import pw.phylame.jiaws.servlet.http.HttpServletResponseImpl;
 import pw.phylame.jiaws.util.DateUtils;
 import pw.phylame.jiaws.util.HttpUtils;
 import pw.phylame.jiaws.util.IPTuple;
-import pw.phylame.jiaws.util.Pair;
 import pw.phylame.jiaws.util.ProtocolException;
+import pw.phylame.jiaws.util.values.Pair;
 
 public class HttpProcessor implements ProtocolProcessor, ServerAware {
     private final Logger logger = LoggerFactory.getLogger(getClass());

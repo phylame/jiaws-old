@@ -16,14 +16,8 @@
 
 package pw.phylame.jiaws.core;
 
-import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
-import pw.phylame.jiaws.util.Pair;
 
 /**
  * Dispatches client request in some way.
@@ -36,15 +30,13 @@ public interface Dispatcher {
      * 
      * @param socket
      *            the socket to send response
-     * @throws IOException
-     *             if occur IO error
      */
-    void dispatch(Socket socket) throws IOException;
+    void dispatch(Socket socket);
 
     /**
      * Cancels all executions for socket.
      * 
-     * @return list of request and response that never processed
+     * @return list of request socket that never processed
      */
-    List<Pair<ServletRequest, ServletResponse>> cancel();
+    List<Socket> cancel();
 }

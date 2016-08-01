@@ -21,47 +21,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 import lombok.AllArgsConstructor;
 import pw.phylame.jiaws.core.AbstractDispatcher;
 import pw.phylame.jiaws.core.Dispatcher;
 import pw.phylame.jiaws.core.ServerAware;
-import pw.phylame.jiaws.util.Pair;
+import pw.phylame.jiaws.spike.ProtocolParser;
 
 public class ExecutorServiceDispatcher extends AbstractDispatcher implements Dispatcher, ServerAware {
     private final ExecutorService executorService;
 
-    public ExecutorServiceDispatcher(ExecutorService executorService) {
+    public ExecutorServiceDispatcher(ProtocolParser parser, ExecutorService executorService) {
+        super(parser);
         this.executorService = executorService;
     }
 
     @Override
-    protected void doService(ServletRequest request, ServletResponse response, Socket socket) throws Exception {
-        executorService.submit(new DispatcherTask(request, response, socket));
+    public void dispatch(Socket socket) {
+        executorService.submit(new DispatcherTask(socket));
     }
 
     @Override
-    public List<Pair<ServletRequest, ServletResponse>> cancel() {
-        List<Pair<ServletRequest, ServletResponse>> result = new ArrayList<>();
+    public List<Socket> cancel() {
+        List<Socket> result = new ArrayList<>();
         for (Runnable r : executorService.shutdownNow()) {
-            DispatcherTask task = (DispatcherTask) r;
-            result.add(new Pair<ServletRequest, ServletResponse>(task.request, task.response));
+            result.add(((DispatcherTask) r).socket);
         }
         return result;
     }
 
     @AllArgsConstructor
     private class DispatcherTask implements Runnable {
-        private ServletRequest request;
-        private ServletResponse response;
         private Socket socket;
 
         @Override
         public void run() {
-            handToServer(request, response);
-            cleanupSocket(socket);
+            processSocket(socket);
         }
     }
 }

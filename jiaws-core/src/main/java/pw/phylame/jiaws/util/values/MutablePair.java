@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package pw.phylame.jiaws.util;
+package pw.phylame.jiaws.util.values;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+public class MutablePair<A, B> extends Pair<A, B> {
 
-@ToString
-@AllArgsConstructor
-public class Pair<A, B> {
-    @Getter
-    protected A first;
+    public MutablePair(A first, B second) {
+        super(first, second);
+    }
 
-    @Getter
-    protected B second;
+    public void setFirst(A first) {
+        this.first = first;
+    }
+
+    public void setSecond(B second) {
+        this.second = second;
+    }
+
+    public void set(A first, B second) {
+        this.first = first;
+        this.second = second;
+    }
 }

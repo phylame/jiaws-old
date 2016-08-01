@@ -16,25 +16,27 @@
 
 package pw.phylame.jiaws.core;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.Socket;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.NonNull;
 import lombok.val;
 import pw.phylame.jiaws.spike.ProtocolParser;
+import pw.phylame.jiaws.util.SocketUtils;
 
 public abstract class AbstractDispatcher implements Dispatcher, ServerAware {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected WeakReference<Server> serverRef;
 
-    private ProtocolParser parser;
+    private final ProtocolParser parser;
+
+    protected AbstractDispatcher(@NonNull ProtocolParser parser) {
+        this.parser = parser;
+    }
 
     @Override
     public void setServer(Server server) {
@@ -42,39 +44,15 @@ public abstract class AbstractDispatcher implements Dispatcher, ServerAware {
         server.setRetainedTo(parser);
     }
 
-    @Override
-    public void dispatch(Socket socket) throws IOException {
-        val pair = parser.parse(socket);
-        // bad request
-        if (pair == null) {
-            return;
-        }
-        socket.shutdownInput();
+    protected void processSocket(Socket socket) {
         try {
-            doService(pair.getFirst(), pair.getSecond(), socket);
+            val pair = parser.parse(socket);
+            socket.shutdownInput();
+            serverRef.get().handleRequest(pair.getFirst(), pair.getSecond());
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    protected void handToServer(ServletRequest request, ServletResponse response) {
-        serverRef.get().handleRequest(request, response);
-    }
-
-    protected abstract void doService(ServletRequest request, ServletResponse response, Socket socket) throws Exception;
-
-    protected void cleanupSocket(Socket socket) {
-        try {
-            socket.shutdownOutput();
-        } catch (IOException e) {
-            logger.error("Cannot render response to socket", e);
+            logger.debug("Failed to dispatch socket", e);
         } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                logger.error("Cannot close client socket", e);
-            }
+            SocketUtils.cleanup(socket);
         }
     }
 }

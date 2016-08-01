@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package pw.phylame.jiaws.util;
+package pw.phylame.jiaws.util.values;
 
-public class MutableLazyValue<T> extends LazyValue<T> {
-    public MutableLazyValue(Provider<T> provider) {
-        super(provider);
-    }
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
 
-    public void set(T value) {
-        this.value = value;
-    }
+@ToString
+@AllArgsConstructor
+public class Pair<A, B> {
+    @Getter
+    protected A first;
+
+    @Getter
+    protected B second;
 }

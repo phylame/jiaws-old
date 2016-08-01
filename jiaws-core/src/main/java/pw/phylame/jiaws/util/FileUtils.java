@@ -19,6 +19,7 @@ package pw.phylame.jiaws.util;
 import java.util.Properties;
 
 import lombok.NonNull;
+import pw.phylame.jiaws.util.values.LazyValue;
 
 public final class FileUtils {
     private FileUtils() {

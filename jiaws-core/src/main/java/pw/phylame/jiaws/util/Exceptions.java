@@ -18,4 +18,8 @@ public final class Exceptions {
     public static IllegalStateException forIllegalState(String format, Object... args) {
         return new IllegalStateException(String.format(format, args));
     }
+
+    public static UnsupportedOperationException forUnsupportedOperation(String format, Object... args) {
+        return new UnsupportedOperationException(String.format(format, args));
+    }
 }

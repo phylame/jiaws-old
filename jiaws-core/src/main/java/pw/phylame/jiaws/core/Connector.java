@@ -22,7 +22,7 @@ import java.util.List;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import pw.phylame.jiaws.util.Pair;
+import pw.phylame.jiaws.util.values.Pair;
 
 /**
  * The connector layer.
