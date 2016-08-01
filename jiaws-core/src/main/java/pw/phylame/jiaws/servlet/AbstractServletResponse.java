@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.Locale;
 
@@ -32,12 +33,14 @@ import org.slf4j.LoggerFactory;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
+import pw.phylame.jiaws.core.Server;
+import pw.phylame.jiaws.core.ServerAware;
 import pw.phylame.jiaws.io.ResponseOutputStream;
 import pw.phylame.jiaws.io.ResponseWriteEvent;
 import pw.phylame.jiaws.io.ResponseWriteListener;
 import pw.phylame.jiaws.util.StringUtils;
 
-public abstract class AbstractServletResponse implements ServletResponse, ResponseWriteListener {
+public abstract class AbstractServletResponse implements ServletResponse, ResponseWriteListener, ServerAware {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final ResponseOutputStream out;
@@ -49,6 +52,7 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
      */
     private String contentType = null;
 
+    @Getter(lombok.AccessLevel.PROTECTED)
     private long contentLength = -1L;
 
     /**
@@ -64,9 +68,19 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
     @Getter
     private Locale locale = Locale.getDefault();
 
+    /**
+     * Holds weak reference of current server.
+     */
+    protected WeakReference<Server> serverRef;
+
     public AbstractServletResponse(@NonNull ResponseOutputStream out) {
         this.out = out;
         out.addResponseWriteListener(this);
+    }
+
+    @Override
+    public void setServer(@NonNull Server server) {
+        serverRef = new WeakReference<Server>(server);
     }
 
     @Override
@@ -176,12 +190,12 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
     }
 
     @Override
-    public void beforeWrite(ResponseWriteEvent e) {
+    public void beforeWrite(ResponseWriteEvent e) throws IOException {
 
     }
 
     @Override
-    public void afetWrite(ResponseWriteEvent e) {
+    public void afetWrite(ResponseWriteEvent e) throws IOException {
 
     }
 

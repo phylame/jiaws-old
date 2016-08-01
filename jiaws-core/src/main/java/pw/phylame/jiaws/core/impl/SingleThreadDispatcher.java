@@ -22,11 +22,16 @@ import java.util.List;
 import pw.phylame.jiaws.core.AbstractDispatcher;
 import pw.phylame.jiaws.core.Dispatcher;
 import pw.phylame.jiaws.spike.ProtocolParser;
+import pw.phylame.jiaws.spike.http11.Http11RequestReader;
 import pw.phylame.jiaws.util.Exceptions;
 
 public class SingleThreadDispatcher extends AbstractDispatcher implements Dispatcher {
 
-    protected SingleThreadDispatcher(ProtocolParser parser) {
+    public SingleThreadDispatcher() {
+        this(new Http11RequestReader());
+    }
+
+    public SingleThreadDispatcher(ProtocolParser parser) {
         super(parser);
     }
 

@@ -18,18 +18,15 @@ package pw.phylame.jiaws.core;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.List;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import pw.phylame.jiaws.core.impl.LifecycleSupport;
 import pw.phylame.jiaws.util.Validator;
-import pw.phylame.jiaws.util.values.Pair;
 
 public abstract class AbstractConnector extends LifecycleSupport implements Connector, ServerAware {
     /**
@@ -47,7 +44,7 @@ public abstract class AbstractConnector extends LifecycleSupport implements Conn
     protected WeakReference<Server> serverRef;
 
     @Getter
-    private List<Pair<ServletRequest, ServletResponse>> unhandled;
+    private List<Socket> unhandled;
 
     protected <C extends ConnectorConfig> AbstractConnector(@NonNull C config) {
         validateConfig(config);
@@ -56,7 +53,6 @@ public abstract class AbstractConnector extends LifecycleSupport implements Conn
 
     protected <C extends ConnectorConfig> void validateConfig(C config) {
         Validator.notNull(config.getDispatcher(), "Dispatcher cannot be null");
-        Validator.notNull(config.getProcessor(), "Processor cannot be null");
     }
 
     @Override

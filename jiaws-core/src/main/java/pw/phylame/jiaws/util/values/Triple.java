@@ -15,4 +15,8 @@ public class Triple<A, B, C> {
 
     @Getter
     protected C third;
+
+    public static <A, B, C> Triple<A, B, C> of(A first, B second, C third) {
+        return new Triple<>(first, second, third);
+    }
 }

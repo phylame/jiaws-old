@@ -60,6 +60,10 @@ public class Http11RequestReader implements ProtocolParser, ServerAware {
         return new Pair<HttpServletRequestImpl, HttpServletResponseImpl>(request, response);
     }
 
+    private void sendError(String message) {
+
+    }
+
     private boolean parseRequestLine(InputStream in, StringBuilder b, HttpServletRequestImpl request)
             throws IOException, ProtocolException {
         b.setLength(0);

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lombok.NonNull;
+import lombok.val;
 import pw.phylame.jiaws.util.values.Triple;
 
 public final class SocketUtils {
@@ -39,15 +40,14 @@ public final class SocketUtils {
         }
     }
 
-    // hostname, ip, port
+    // ip, hostname, port
     public static Triple<String, String, Integer> getLocalBind(@NonNull Socket socket) {
-        return new Triple<String, String, Integer>(socket.getLocalAddress().getHostAddress(),
-                socket.getLocalAddress().getHostName(), socket.getLocalPort());
+        val address = socket.getLocalAddress();
+        return new Triple<>(address.getHostAddress(), address.getHostName(), socket.getLocalPort());
     }
 
-    // hostname, ip, port
     public static Triple<String, String, Integer> getRemoteBind(@NonNull Socket socket) {
-        return new Triple<String, String, Integer>(socket.getInetAddress().getHostAddress(),
-                socket.getInetAddress().getHostName(), socket.getPort());
+        val address = socket.getInetAddress();
+        return new Triple<>(address.getHostAddress(), address.getHostName(), socket.getPort());
     }
 }

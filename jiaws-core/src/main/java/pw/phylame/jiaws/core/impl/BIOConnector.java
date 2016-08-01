@@ -47,14 +47,7 @@ public class BIOConnector extends AbstractConnector {
         while (!cancelled) {
             val socket = serverSocket.accept();
             if (socket.isConnected()) {
-                try {
-                    dispatcher.dispatch(socket);
-                } catch (Exception e) {
-                    logger.error("Error occured in dispatcher", e);
-                    if (!socket.isClosed()) {
-                        socket.close();
-                    }
-                }
+                dispatcher.dispatch(socket);
             }
         }
     }

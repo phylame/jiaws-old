@@ -2,7 +2,6 @@ package pw.phylame.jiaws.servlet.http;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.Writer;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -30,6 +29,8 @@ public class HttpServletResponseImpl extends AbstractServletResponse implements 
     private String reason = null;
 
     private List<Cookie> cookies = new LinkedList<>();
+
+    private String contentEncoding = null;
 
     private MultiValueMap<String, String> headers = new MultiValueMap<>();
 
@@ -160,7 +161,7 @@ public class HttpServletResponseImpl extends AbstractServletResponse implements 
     }
 
     @Override
-    public void beforeWrite(ResponseWriteEvent e) {
+    public void beforeWrite(ResponseWriteEvent e) throws IOException {
         val p = new PrintStream((ResponseOutputStream) e.getSource(), false);
         writeStatusLine(p);
         writeHeaderFields(p);
@@ -179,11 +180,11 @@ public class HttpServletResponseImpl extends AbstractServletResponse implements 
         // response header
         writeHeaderField(p, "Server", serverRef.get().getAssembly().getVersionInfo());
         // entity header
-        if (getContentEncoding() != null) {
-            writeHeaderField(p, "Content-Encoding", getContentEncoding());
+        if (contentEncoding != null) {
+            writeHeaderField(p, "Content-Encoding", contentEncoding);
         }
-        writeHeaderField(p, "Content-Length", Long.toString(getContentLengthLong()));
-        if (getContentLengthLong() > 0) {
+        writeHeaderField(p, "Content-Length", Long.toString(getContentLength()));
+        if (getContentLength() > 0) {
             writeHeaderField(p, "Content-Type", getContentType());
         }
         for (Cookie cookie : cookies) {

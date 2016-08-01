@@ -26,9 +26,14 @@ import pw.phylame.jiaws.core.AbstractDispatcher;
 import pw.phylame.jiaws.core.Dispatcher;
 import pw.phylame.jiaws.core.ServerAware;
 import pw.phylame.jiaws.spike.ProtocolParser;
+import pw.phylame.jiaws.spike.http11.Http11RequestReader;
 
 public class ExecutorServiceDispatcher extends AbstractDispatcher implements Dispatcher, ServerAware {
     private final ExecutorService executorService;
+
+    public ExecutorServiceDispatcher(ExecutorService executorService) {
+        this(new Http11RequestReader(), executorService);
+    }
 
     public ExecutorServiceDispatcher(ProtocolParser parser, ExecutorService executorService) {
         super(parser);
