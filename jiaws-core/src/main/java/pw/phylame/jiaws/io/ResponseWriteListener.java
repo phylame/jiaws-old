@@ -6,5 +6,5 @@ import java.util.EventListener;
 public interface ResponseWriteListener extends EventListener {
     void beforeWrite(ResponseWriteEvent e) throws IOException;
 
-    void afetWrite(ResponseWriteEvent e) throws IOException;
+    void afterWrite(ResponseWriteEvent e) throws IOException;
 }

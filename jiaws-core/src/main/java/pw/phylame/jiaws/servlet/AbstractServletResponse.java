@@ -53,7 +53,7 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
     private String contentType = null;
 
     @Getter(lombok.AccessLevel.PROTECTED)
-    private long contentLength = -1L;
+    private Long contentLength;
 
     /**
      * State of the response. 0: fresh, 1: written by getWriter, 2: written by
@@ -189,13 +189,17 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
         }
     }
 
+    public void flushResponse() throws IOException {
+        out.flush();
+    }
+
     @Override
     public void beforeWrite(ResponseWriteEvent e) throws IOException {
 
     }
 
     @Override
-    public void afetWrite(ResponseWriteEvent e) throws IOException {
+    public void afterWrite(ResponseWriteEvent e) throws IOException {
 
     }
 

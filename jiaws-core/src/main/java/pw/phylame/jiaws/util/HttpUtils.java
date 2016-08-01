@@ -21,7 +21,11 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import lombok.NonNull;
+import lombok.val;
+import pw.phylame.jiaws.servlet.AbstractServletResponse;
 import pw.phylame.jiaws.util.values.LazyValue;
+
+import javax.servlet.ServletResponse;
 
 public final class HttpUtils {
     private HttpUtils() {
@@ -48,14 +52,15 @@ public final class HttpUtils {
         return httpStatus.get().getProperty(Integer.toString(code), "Unknow error");
     }
 
-
-    public static String getCharsetForContentType(@NonNull String type) {
-        for (String part : type.split(";")) {
-            int index = part.indexOf('=');
-            if (index != -1 && part.substring(0, index).equalsIgnoreCase("charset")) {
-                return part.substring(index + 1);
-            }
+    public static void flushResponse(ServletResponse response) {
+        if (!(response instanceof AbstractServletResponse)) {
+            return;
         }
-        return null;
+        val r = (AbstractServletResponse) response;
+        try {
+            r.flushResponse();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

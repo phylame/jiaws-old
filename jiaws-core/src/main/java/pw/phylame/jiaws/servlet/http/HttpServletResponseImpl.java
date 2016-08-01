@@ -183,9 +183,11 @@ public class HttpServletResponseImpl extends AbstractServletResponse implements 
         if (contentEncoding != null) {
             writeHeaderField(p, "Content-Encoding", contentEncoding);
         }
-        writeHeaderField(p, "Content-Length", Long.toString(getContentLength()));
-        if (getContentLength() > 0) {
-            writeHeaderField(p, "Content-Type", getContentType());
+        if (getContentLength() != null) {
+            writeHeaderField(p, "Content-Length", Long.toString(getContentLength()));
+            if (getContentLength() > 0) {
+                writeHeaderField(p, "Content-Type", getContentType());
+            }
         }
         for (Cookie cookie : cookies) {
             writeHeaderField(p, "Set-Cookie", renderCookie(cookie));

@@ -165,7 +165,7 @@ public class ResponseOutputStream extends BufferedOutputStream {
     private void dispatchAfterWriteEvent() throws IOException {
         val e = new ResponseWriteEvent(this);
         for (ResponseWriteListener l : listeners) {
-            l.afetWrite(e);
+            l.afterWrite(e);
         }
     }
 }

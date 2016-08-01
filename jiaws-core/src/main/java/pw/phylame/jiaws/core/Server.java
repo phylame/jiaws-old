@@ -93,13 +93,13 @@ public class Server extends LifecycleSupport {
 
     /**
      * Sends request and response to servlet.
-     * 
-     * @param request
-     *            the request
-     * @param response
-     *            the response
+     *
+     * @param request  the request
+     * @param response the response
      */
     public void handleRequest(ServletRequest request, ServletResponse response) {
+        setRetainedTo(request);
+        setRetainedTo(response);
         logger.debug("TODO: get servlet and filter");
         val cookie = new Cookie("name", "pw");
         cookie.setDomain("test.com");
