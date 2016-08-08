@@ -38,25 +38,18 @@ public class Http11RequestReader implements ProtocolParser, ServerAware {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<HttpServletRequestImpl, HttpServletResponseImpl> parse(Socket socket) throws IOException {
+    public Pair<HttpServletRequestImpl, HttpServletResponseImpl> parse(Socket socket)
+            throws IOException, ProtocolException {
         InputStream in = new BufferedInputStream(socket.getInputStream());
         StringBuilder b = new StringBuilder();
         val request = new HttpServletRequestImpl();
-        try {
-            // request line
-            if (!parseRequestLine(in, b, request)) { // received nothing
-                logger.info("Received nothing from client");
-                return null;
-            }
-            parseHeaderFields(in, b, request);
-            parseRequestBody(in, b, request);
-            setAddressInfo(socket, request);
-        } catch (ProtocolException e) {
-            logger.debug("Get bad HTTP protocol", e);
-            sendError(e.getMessage());
-            return null;
-        }
+        // request line
+        parseRequestLine(in, b, request);
+        parseHeaderFields(in, b, request);
+        parseRequestBody(in, b, request);
+        setAddressInfo(socket, request);
         val response = new HttpServletResponseImpl(new ResponseOutputStream(socket.getOutputStream()));
+        response.setSocket(socket);
         return new Pair<HttpServletRequestImpl, HttpServletResponseImpl>(request, response);
     }
 
@@ -64,7 +57,7 @@ public class Http11RequestReader implements ProtocolParser, ServerAware {
 
     }
 
-    private boolean parseRequestLine(InputStream in, StringBuilder b, HttpServletRequestImpl request)
+    private void parseRequestLine(InputStream in, StringBuilder b, HttpServletRequestImpl request)
             throws IOException, ProtocolException {
         b.setLength(0);
         val parameters = request.getParameters();
@@ -146,7 +139,7 @@ public class Http11RequestReader implements ProtocolParser, ServerAware {
             }
         }
         if (recvNum == 0) {
-            return false;
+            throw new ProtocolException("Bad HTTP protocol in request line", "http");
         }
         // received data but invalid
         if (recvNum >= 0 && method == null || path == null || protocol == null) {
@@ -156,7 +149,6 @@ public class Http11RequestReader implements ProtocolParser, ServerAware {
         request.setPath(path);
         request.setQuery(query.toString());
         request.setProtocol(protocol);
-        return true;
     }
 
     private void parseHeaderFields(InputStream in, StringBuilder b, HttpServletRequestImpl request)

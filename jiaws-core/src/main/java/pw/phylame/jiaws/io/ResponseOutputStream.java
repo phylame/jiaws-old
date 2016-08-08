@@ -1,40 +1,65 @@
 package pw.phylame.jiaws.io;
 
-import java.io.BufferedOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import lombok.Getter;
-import lombok.val;
+import lombok.NonNull;
+import lombok.Setter;
+import pw.phylame.jiaws.servlet.AbstractServletResponse;
 import pw.phylame.jiaws.util.Exceptions;
 
-public class ResponseOutputStream extends BufferedOutputStream {
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
+public class ResponseOutputStream extends FilterOutputStream {
+    public static final int DEFAULT_BUFFER_SIZE = 8192;
 
     public static final int MIN_BUFFER_SIZE = 1024;
 
-    @Getter
-    private boolean flushed = false;
+    private byte[] buf;
 
     /**
      * Remaining buffer data that should be written in next flushing operation.
      */
     private BufferRange remain = null;
 
-    private List<ResponseWriteListener> listeners = new LinkedList<>();
+    private int count;
 
-    public ResponseOutputStream(OutputStream out, int size) {
-        super(out, size);
-    }
+    /**
+     * Total number of data written to the stream.
+     */
+    @Getter
+    private int total = 0;
+
+    /**
+     * State indicating that buffer has been flushed to underlying stream.
+     */
+    @Getter
+    private boolean committed = false;
+
+    /**
+     * Reference of corresponding servlet response.
+     */
+    protected WeakReference<AbstractServletResponse> responseRef;
+
+    @Setter
+    private OnFirstCommitListener onFirstCommitListener;
 
     public ResponseOutputStream(OutputStream out) {
+        this(out, DEFAULT_BUFFER_SIZE);
+    }
+
+    public ResponseOutputStream(@NonNull OutputStream out, int size) {
         super(out);
+        if (size <= 0) {
+            throw Exceptions.forIllegalArgument("Buffer size <= 0");
+        }
+        buf = new byte[size];
+    }
+
+    public void setResponse(@NonNull AbstractServletResponse response) {
+        responseRef = new WeakReference<AbstractServletResponse>(response);
     }
 
     public int getBufferSize() {
@@ -50,13 +75,12 @@ public class ResponseOutputStream extends BufferedOutputStream {
      *             if this method is called after content has been written
      */
     public synchronized void setBufferSize(int size) throws IllegalStateException {
-        if (isFlushed()) {
-            throw new IllegalStateException("Cannot change buffer size after data has been written");
+        if (isCommitted()) {
+            throw Exceptions.forIllegalState("Cannot change buffer size after data has been written");
         }
         if (size == buf.length) {
             return;
         } else if (size < MIN_BUFFER_SIZE) {
-            logger.info("Specified new size({}) < MIN_BUFFER_SIZE({})", size, MIN_BUFFER_SIZE);
             return;
         }
         if (count < size) {
@@ -75,12 +99,14 @@ public class ResponseOutputStream extends BufferedOutputStream {
      *             if this method is called after content has been written
      */
     public synchronized void resetBuffer() throws IllegalStateException {
-        if (isFlushed()) {
+        if (isCommitted()) {
             throw Exceptions.forIllegalState("Response has been committed");
         }
         count = 0;
+        total = 0;
     }
 
+    // true: written data, false: not
     private boolean flushRemain() throws IOException {
         if (remain != null) {
             remain.writeTo(out);
@@ -90,82 +116,72 @@ public class ResponseOutputStream extends BufferedOutputStream {
         return false;
     }
 
+    // true: written data, false: not
+    private boolean flushBuffer() throws IOException {
+        boolean state = flushRemain();
+        if (count > 0) {
+            out.write(buf, 0, count);
+            count = 0;
+            state = true;
+        }
+        return state;
+    }
+
     @Override
     public synchronized void write(int b) throws IOException {
-        // current data size in buffer
-        val current = count;
-        boolean dispatched = false;
-        if (remain != null || count >= buf.length) {
-            dispatchBeforeWriteEvent();
-            dispatched = true;
+        System.out.println("write byte");
+        if (count >= buf.length) {
+            setCommitted(flushBuffer());
         }
-        flushRemain();
-        super.write(b);
-        // data has been written to out, i.e. being committed
-        flushed = current != count;
-        if (dispatched) {
-            dispatchAfterWriteEvent();
-        }
+        buf[count++] = (byte) b;
+        total++;
     }
 
     @Override
     public synchronized void write(byte[] b, int off, int len) throws IOException {
-        // current data size in buffer
-        val current = count;
-        boolean dispatched = false;
-        if (remain != null || count >= buf.length) {
-            dispatchBeforeWriteEvent();
-            dispatched = true;
+        System.out.println("write bytes");
+        if (len >= buf.length) {
+            setCommitted(flushBuffer());
+            out.write(b, off, len);
+            if (len > 0) { // data written
+                setCommitted(true);
+            }
+            total += len;
+            return;
         }
-        flushRemain();
-        super.write(b, off, len);
-        // data has been written to out, i.e. being committed
-        flushed = current != count;
-        if (dispatched) {
-            dispatchAfterWriteEvent();
+        if (len > buf.length - count) {
+            setCommitted(flushBuffer());
         }
+        System.arraycopy(b, off, buf, count, len);
+        count += len;
+        total += len;
     }
 
     @Override
     public synchronized void flush() throws IOException {
-        dispatchBeforeWriteEvent();
-        flushRemain();
-        super.flush();
-        flushed = true;
-        dispatchAfterWriteEvent();
+        setCommitted(flushBuffer());
+        out.flush();
     }
 
-    public void writeAndFlush(byte[] b) throws IOException {
-        out.write(b);
-    }
-
-    public void writeAndFlush(byte[] b, int off, int len) throws IOException {
-        out.write(b, off, len);
-    }
-
-    public void addResponseWriteListener(ResponseWriteListener l) {
-        if (l != null) {
-            listeners.add(l);
+    private void setCommitted(boolean committed) throws IOException {
+        if (this.committed) { // already committed
+            return;
+        }
+        this.committed = committed;
+        if (onFirstCommitListener != null) {
+            onFirstCommitListener.beforCommit(this);
         }
     }
 
-    public void removeResponseWriteListener(ResponseWriteListener l) {
-        if (l != null) {
-            listeners.remove(l);
-        }
-    }
-
-    private void dispatchBeforeWriteEvent() throws IOException {
-        val e = new ResponseWriteEvent(this);
-        for (ResponseWriteListener l : listeners) {
-            l.beforeWrite(e);
-        }
-    }
-
-    private void dispatchAfterWriteEvent() throws IOException {
-        val e = new ResponseWriteEvent(this);
-        for (ResponseWriteListener l : listeners) {
-            l.afterWrite(e);
-        }
+    public static interface OnFirstCommitListener {
+        /**
+         * Called on first committing to underlying stream
+         * 
+         * @param out
+         *            the <code>ResponseOutputStream</code> object
+         * @throws IOException
+         *             if occur IO error when calling method of out
+         */
+        void beforCommit(ResponseOutputStream out) throws IOException;
     }
 }

@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import lombok.NonNull;
 import lombok.val;
 import pw.phylame.jiaws.spike.ProtocolParser;
-import pw.phylame.jiaws.util.HttpUtils;
 import pw.phylame.jiaws.util.SocketUtils;
 
 public abstract class AbstractDispatcher implements Dispatcher, ServerAware {
@@ -50,7 +49,7 @@ public abstract class AbstractDispatcher implements Dispatcher, ServerAware {
             val pair = parser.parse(socket);
             socket.shutdownInput();
             serverRef.get().handleRequest(pair.getFirst(), pair.getSecond());
-            HttpUtils.flushResponse(pair.getSecond());
+            pair.getSecond().flushBuffer();
         } catch (Exception e) {
             logger.debug("Failed to dispatch socket", e);
         } finally {

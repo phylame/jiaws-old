@@ -7,6 +7,10 @@ public final class Exceptions {
     private Exceptions() {
     }
 
+    public static RuntimeException forRuntime(String format, Object... args) {
+        return new RuntimeException(String.format(format, args));
+    }
+
     public static NullPointerException forNullPointer(String format, Object... args) {
         return new NullPointerException(String.format(format, args));
     }

@@ -18,7 +18,7 @@ public class ServletResponseOutputStream extends ServletOutputStream {
 
     @Override
     public boolean isReady() {
-        return ImplementUtils.raiseForImpl();
+        return true;
     }
 
     @Override

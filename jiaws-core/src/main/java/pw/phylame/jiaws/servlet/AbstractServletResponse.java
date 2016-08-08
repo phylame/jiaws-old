@@ -1,17 +1,14 @@
 /*
  * Copyright 2014-2016 Peng Wan <phylame@163.com>
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package pw.phylame.jiaws.servlet;
@@ -21,6 +18,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.Locale;
 
@@ -32,23 +30,23 @@ import org.slf4j.LoggerFactory;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.val;
 import pw.phylame.jiaws.core.Server;
 import pw.phylame.jiaws.core.ServerAware;
 import pw.phylame.jiaws.io.ResponseOutputStream;
-import pw.phylame.jiaws.io.ResponseWriteEvent;
-import pw.phylame.jiaws.io.ResponseWriteListener;
 import pw.phylame.jiaws.util.StringUtils;
 
-public abstract class AbstractServletResponse implements ServletResponse, ResponseWriteListener, ServerAware {
+public abstract class AbstractServletResponse
+        implements ServletResponse, ServerAware, ResponseOutputStream.OnFirstCommitListener {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final ResponseOutputStream out;
+    protected final ResponseOutputStream out;
 
     private String characterEncoding = null;
 
     /**
-     * The content type without charset.
+     * The content type without character encoding.
      */
     private String contentType = null;
 
@@ -56,8 +54,7 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
     private Long contentLength;
 
     /**
-     * State of the response. 0: fresh, 1: written by getWriter, 2: written by
-     * getOutputStream
+     * State of the response. 0: fresh, 1: written by getWriter, 2: written by getOutputStream
      */
     private int state = FRESH;
 
@@ -69,13 +66,23 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
     private Locale locale = Locale.getDefault();
 
     /**
+     * State indicating that flushBuffer has been called.
+     */
+    @Getter
+    private boolean flushed = false;
+
+    /**
      * Holds weak reference of current server.
      */
     protected WeakReference<Server> serverRef;
 
+    @Setter
+    protected Socket socket;
+
     public AbstractServletResponse(@NonNull ResponseOutputStream out) {
         this.out = out;
-        out.addResponseWriteListener(this);
+        out.setResponse(this);
+        out.setOnFirstCommitListener(this);
     }
 
     @Override
@@ -112,7 +119,7 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
         }
         state = BY_GET_WRITER;
         // no auto flush
-        return new PrintWriter(new OutputStreamWriter(new ServletResponseOutputStream(out), encoding), false);
+        return new PrintWriter(new OutputStreamWriter(out, encoding), false);
     }
 
     @Override
@@ -137,11 +144,18 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
     @Override
     public void setContentType(String type) {
         if (type != null && !isCommitted()) {
-            contentType = type;
-            val encoding = StringUtils.getValueOfName(type, "charset", ";", false);
-            if (StringUtils.isNotEmpty(encoding)) {
-                setCharacterEncoding(encoding);
+            StringBuilder b = new StringBuilder();
+            String first, second;
+            for (val pair : StringUtils.getNamedParts(type, ";")) {
+                first = pair.getFirst();
+                second = pair.getSecond();
+                if (first.equalsIgnoreCase("charset") && !second.isEmpty()) {
+                    setCharacterEncoding(second);
+                    continue;
+                }
+                b.append(first).append(second.isEmpty() ? "" : "=" + second);
             }
+            contentType = b.toString();
         }
     }
 
@@ -158,28 +172,25 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
 
     @Override
     public void flushBuffer() throws IOException {
-        if (isCommitted()) {
-            return;
-        }
         out.flush();
+        flushed = true;
     }
 
     @Override
     public void resetBuffer() {
         ensureNotCommitted("Cannot reset buffer after response has been committed");
         out.resetBuffer();
+        state = FRESH;
     }
 
     @Override
     public boolean isCommitted() {
-        return out.isFlushed();
+        return out.isCommitted();
     }
 
     @Override
     public void reset() {
-        ensureNotCommitted("Cannot call reset() after response has been committed");
-        out.resetBuffer();
-        state = FRESH;
+        resetBuffer();
     }
 
     @Override
@@ -187,20 +198,6 @@ public abstract class AbstractServletResponse implements ServletResponse, Respon
         if (loc != null && !isCommitted()) {
             locale = loc;
         }
-    }
-
-    public void flushResponse() throws IOException {
-        out.flush();
-    }
-
-    @Override
-    public void beforeWrite(ResponseWriteEvent e) throws IOException {
-
-    }
-
-    @Override
-    public void afterWrite(ResponseWriteEvent e) throws IOException {
-
     }
 
     protected void ensureNotCommitted(String message) throws IllegalStateException {
