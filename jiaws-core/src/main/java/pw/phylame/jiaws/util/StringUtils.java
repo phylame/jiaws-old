@@ -37,15 +37,15 @@ public final class StringUtils {
     }
 
     public static List<Pair<String, String>> getNamedParts(@NonNull String str, @NonNull String partSeparator,
-            @NonNull String valueSeparator) {
+                                                           @NonNull String valueSeparator) {
         List<Pair<String, String>> parts = new ArrayList<>();
         int index;
         for (String part : str.split(partSeparator)) {
             index = part.indexOf(valueSeparator);
             if (index != -1) {
-                parts.add(Pair.of(part.substring(0, index), part.substring(index + valueSeparator.length())));
+                parts.add(new Pair<String, String>(part.substring(0, index), part.substring(index + valueSeparator.length())));
             } else {
-                parts.add(Pair.of(part, ""));
+                parts.add(new Pair<String, String>(part, ""));
             }
         }
         return parts;

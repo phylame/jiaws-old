@@ -26,4 +26,12 @@ public final class Exceptions {
     public static UnsupportedOperationException forUnsupportedOperation(String format, Object... args) {
         return new UnsupportedOperationException(String.format(format, args));
     }
+
+    public static ProtocolException forProtocol(String protocol, String format, Object... args) {
+        return new ProtocolException(String.format(format, args), protocol);
+    }
+
+    public static HttpException forHttp(String format, Object... args) {
+        return new HttpException(String.format(format, args));
+    }
 }
