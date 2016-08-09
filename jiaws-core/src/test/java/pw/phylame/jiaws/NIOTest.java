@@ -12,6 +12,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Date;
 
 import lombok.val;
+import pw.phylame.jiaws.io.ChannelInputStream;
 import pw.phylame.jiaws.util.DateUtils;
 
 public class NIOTest {
@@ -45,18 +46,27 @@ public class NIOTest {
     }
 
     private static void recv(SocketChannel sc, ByteBuffer buffer) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int size;
-        byte[] bytes;
-        while ((size = sc.read(buffer)) > 0) {
-            buffer.flip();
-            bytes = new byte[size];
-            buffer.get(bytes);
-            baos.write(bytes);
-            buffer.clear();
-        }
-        System.out.println("recv:");
-        System.out.println(new String(baos.toByteArray()));
+        val in = new ChannelInputStream(sc,10);
+        byte[] buf = new byte[1024];
+//        System.out.println(in.skip(1024));
+        int len = in.read(buf);
+        System.out.println(len);
+        String string = new String(buf, 0, len);
+        System.out.println(string.length());
+        System.out.print(string);
+
+        // ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        // int size;
+        // byte[] bytes;
+        // while ((size = sc.read(buffer)) > 0) {
+        // buffer.flip();
+        // bytes = new byte[size];
+        // buffer.get(bytes);
+        // baos.write(bytes);
+        // buffer.clear();
+        // }
+        // System.out.println("recv:");
+        // System.out.println(new String(baos.toByteArray()));
     }
 
     public static final String CRLF = "\r\n";

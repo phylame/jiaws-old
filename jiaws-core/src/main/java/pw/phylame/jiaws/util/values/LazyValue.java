@@ -20,7 +20,7 @@ import lombok.NonNull;
 import lombok.Synchronized;
 import pw.phylame.jiaws.util.Provider;
 
-public class LazyValue<T> extends ValueHolder<T> {
+public class LazyValue<T> extends Value<T> {
     private boolean initialized = false;
 
     private Provider<T> provider;

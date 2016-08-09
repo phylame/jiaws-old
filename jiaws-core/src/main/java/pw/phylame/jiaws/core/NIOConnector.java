@@ -1,17 +1,18 @@
-package pw.phylame.jiaws.core.impl;
+package pw.phylame.jiaws.core;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import lombok.val;
-import pw.phylame.jiaws.core.AbstractConnector;
-import pw.phylame.jiaws.core.ConnectorConfig;
+import pw.phylame.jiaws.io.IOUtils;
+import pw.phylame.jiaws.spike.ChannelInput;
 
-public class NIOConnector extends AbstractConnector {
+public class NIOConnector extends AbstractConnector<ChannelInput> {
+    private Selector selector;
+
     private ServerSocketChannel ssc;
 
     /**
@@ -19,21 +20,25 @@ public class NIOConnector extends AbstractConnector {
      */
     private volatile boolean cancelled = false;
 
-    protected NIOConnector(ConnectorConfig config) {
+    public NIOConnector(ConnectorConfig<ChannelInput> config) {
         super(config);
     }
 
     @Override
     protected void doStart() throws IOException {
         super.doStart();
-        val selector = Selector.open();
         logger.info("{}@{} starting...", getClass().getSimpleName(), hashCode());
+
+        selector = Selector.open();
         ssc = ServerSocketChannel.open();
-        logger.info("Binding address {}...", address);
         ssc.bind(address);
+        logger.info("Bound address {}...", address);
         ssc.configureBlocking(false);
         ssc.register(selector, SelectionKey.OP_ACCEPT);
+
         val dispatcher = config.getDispatcher();
+        val parser = config.getParser();
+
         while (!cancelled && selector.select() > 0) {
             val i = selector.selectedKeys().iterator();
             while (i.hasNext()) {
@@ -42,12 +47,10 @@ public class NIOConnector extends AbstractConnector {
                 if (key.isAcceptable()) {
                     val sc = ((ServerSocketChannel) key.channel()).accept();
                     sc.configureBlocking(false);
-                    sc.register(key.selector(), SelectionKey.OP_READ, ByteBuffer.allocate(8192));
+                    sc.register(key.selector(), SelectionKey.OP_READ);
                 } else if (key.isReadable()) {
-                    recv((SocketChannel) key.channel(), (ByteBuffer) key.attachment());
-                    key.interestOps(SelectionKey.OP_WRITE);
-                } else if (key.isWritable()) {
-                    send((SocketChannel) key.channel());
+                    dispatcher.dispatch(parser, new ChannelInput((SocketChannel) key.channel()));
+                    // after dispatching, the socket channel will be closed
                 }
             }
         }
@@ -57,18 +60,9 @@ public class NIOConnector extends AbstractConnector {
     protected void doStop() throws IOException {
         cancelled = true;
         super.doStop();
-        if (ssc != null && ssc.isOpen()) {
-            ssc.close();
-        }
+        IOUtils.closeQuietly(ssc);
+        ssc = null;
+        IOUtils.closeQuietly(selector);
+        selector = null;
     }
-
-    private void recv(SocketChannel sc, ByteBuffer buffer) throws IOException {
-        // todo: parse http and dispatch
-    }
-
-    private void send(SocketChannel sc) throws IOException {
-        // todo: send http to client
-        sc.close();
-    }
-
 }

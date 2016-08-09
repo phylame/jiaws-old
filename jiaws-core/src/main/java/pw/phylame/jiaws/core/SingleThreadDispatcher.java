@@ -13,35 +13,24 @@
 
 package pw.phylame.jiaws.core;
 
-import java.net.SocketAddress;
 import java.util.List;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
 import pw.phylame.jiaws.spike.InputObject;
+import pw.phylame.jiaws.spike.ProtocolParser;
+import pw.phylame.jiaws.util.Exceptions;
 
-/**
- * The connector layer.
- * <p>
- * Purpose:
- * <ul>
- * <li>Receive client request</li>
- * <li>Parse request to <code>ServletRequest</code></li>
- * <li>Render <code>ServletResponse</code> as HTTP to client</li>
- * </ul>
- *
- */
-public interface Connector<I extends InputObject> extends Lifecycle, AutoCloseable {
-    /**
-     * Sets the address that the connector bind on.
-     * 
-     * @param address
-     *            the socket address
-     */
-    void setAddress(SocketAddress address);
+public class SingleThreadDispatcher<I extends InputObject> extends AbstractDispatcher<I> {
 
-    /**
-     * Gets all unhandled request and response.
-     * 
-     * @return list of unhandled request and response
-     */
-    List<I> getUnhandled();
+    @Override
+    public void dispatch(ProtocolParser<? extends ServletRequest, ? extends ServletResponse, I> parser, I input) {
+        process(parser, input);
+    }
+
+    @Override
+    public List<I> cancel() {
+        throw Exceptions.forUnsupportedOperation("cancel operation of '%s' is unsupported", getClass().getName());
+    }
 }

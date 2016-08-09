@@ -58,7 +58,7 @@ import pw.phylame.jiaws.util.values.MutableLazyValue;
 
 import static pw.phylame.jiaws.util.ImplementUtils.*;
 
-public class HttpServletRequestImpl extends ServletObject implements HttpServletRequest {
+public class JiawsHttpRequest extends ServletObject implements HttpServletRequest {
     @Setter
     private IPTuple localIP;
 

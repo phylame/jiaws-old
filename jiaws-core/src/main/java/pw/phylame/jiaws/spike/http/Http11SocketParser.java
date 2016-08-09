@@ -1,4 +1,4 @@
-package pw.phylame.jiaws.spike.http11;
+package pw.phylame.jiaws.spike.http;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -13,14 +13,16 @@ import lombok.val;
 import pw.phylame.jiaws.core.Server;
 import pw.phylame.jiaws.core.ServerAware;
 import pw.phylame.jiaws.io.ResponseOutputStream;
-import pw.phylame.jiaws.servlet.HttpServletRequestImpl;
-import pw.phylame.jiaws.servlet.http.HttpServletResponseImpl;
+import pw.phylame.jiaws.servlet.JiawsHttpRequest;
+import pw.phylame.jiaws.servlet.http.JiawsHttpResponse;
 import pw.phylame.jiaws.spike.ProtocolParser;
+import pw.phylame.jiaws.spike.SocketInput;
 import pw.phylame.jiaws.util.IPTuple;
 import pw.phylame.jiaws.util.ProtocolException;
 import pw.phylame.jiaws.util.values.Pair;
 
-public class Http11RequestReader implements ProtocolParser, ServerAware {
+public class Http11SocketParser
+        implements ProtocolParser<JiawsHttpRequest, JiawsHttpResponse, SocketInput>, ServerAware {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private WeakReference<Server> serverRef;
@@ -37,27 +39,27 @@ public class Http11RequestReader implements ProtocolParser, ServerAware {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Pair<HttpServletRequestImpl, HttpServletResponseImpl> parse(Socket socket)
+    public Pair<JiawsHttpRequest, JiawsHttpResponse> parse(SocketInput input)
             throws IOException, ProtocolException {
+        val socket = input.getSocket();
         InputStream in = new BufferedInputStream(socket.getInputStream());
         StringBuilder b = new StringBuilder();
-        val request = new HttpServletRequestImpl();
+        val request = new JiawsHttpRequest();
         // request line
         parseRequestLine(in, b, request);
         parseHeaderFields(in, b, request);
         parseRequestBody(in, b, request);
         setAddressInfo(socket, request);
-        val response = new HttpServletResponseImpl(new ResponseOutputStream(socket.getOutputStream()));
+        val response = new JiawsHttpResponse(new ResponseOutputStream(socket.getOutputStream()));
         response.setSocket(socket);
-        return new Pair<HttpServletRequestImpl, HttpServletResponseImpl>(request, response);
+        return new Pair<JiawsHttpRequest, JiawsHttpResponse>(request, response);
     }
 
     private void sendError(String message) {
 
     }
 
-    private void parseRequestLine(InputStream in, StringBuilder b, HttpServletRequestImpl request)
+    private void parseRequestLine(InputStream in, StringBuilder b, JiawsHttpRequest request)
             throws IOException, ProtocolException {
         b.setLength(0);
         val parameters = request.getParameters();
@@ -151,7 +153,7 @@ public class Http11RequestReader implements ProtocolParser, ServerAware {
         request.setProtocol(protocol);
     }
 
-    private void parseHeaderFields(InputStream in, StringBuilder b, HttpServletRequestImpl request)
+    private void parseHeaderFields(InputStream in, StringBuilder b, JiawsHttpRequest request)
             throws IOException, ProtocolException {
         b.setLength(0);
         val headers = request.getHeaders();
@@ -207,7 +209,7 @@ public class Http11RequestReader implements ProtocolParser, ServerAware {
         }
     }
 
-    private void parseRequestBody(InputStream in, StringBuilder b, HttpServletRequestImpl request)
+    private void parseRequestBody(InputStream in, StringBuilder b, JiawsHttpRequest request)
             throws IOException, ProtocolException {
         b.setLength(0);
         long length = request.getContentLengthLong();
@@ -221,7 +223,7 @@ public class Http11RequestReader implements ProtocolParser, ServerAware {
         }
     }
 
-    private void parsePostParameters(InputStream in, long length, StringBuilder b, HttpServletRequestImpl request)
+    private void parsePostParameters(InputStream in, long length, StringBuilder b, JiawsHttpRequest request)
             throws IOException, ProtocolException {
         val parameters = request.getParameters();
         long recvNum = 0;
@@ -257,7 +259,7 @@ public class Http11RequestReader implements ProtocolParser, ServerAware {
         }
     }
 
-    private void setAddressInfo(Socket socket, HttpServletRequestImpl request) {
+    private void setAddressInfo(Socket socket, JiawsHttpRequest request) {
         request.setLocalIP(new IPTuple(socket.getLocalAddress(), socket.getLocalPort()));
         request.setRemoteIP(new IPTuple(socket.getInetAddress(), socket.getPort()));
     }

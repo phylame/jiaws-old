@@ -20,7 +20,7 @@ import pw.phylame.jiaws.util.HttpUtils;
 import pw.phylame.jiaws.util.ImplementUtils;
 import pw.phylame.jiaws.util.MultiValueMap;
 
-public class HttpServletResponseImpl extends AbstractServletResponse implements HttpServletResponse {
+public class JiawsHttpResponse extends AbstractServletResponse implements HttpServletResponse {
     private String protocol = "HTTP/1.1";
 
     @Getter
@@ -34,7 +34,7 @@ public class HttpServletResponseImpl extends AbstractServletResponse implements 
 
     private MultiValueMap<String, String> headers = new MultiValueMap<>();
 
-    public HttpServletResponseImpl(ResponseOutputStream out) {
+    public JiawsHttpResponse(ResponseOutputStream out) {
         super(out);
     }
 

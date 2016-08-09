@@ -23,8 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
-import pw.phylame.jiaws.core.impl.LifecycleSupport;
-import pw.phylame.jiaws.servlet.HttpServletRequestImpl;
+import pw.phylame.jiaws.servlet.JiawsHttpRequest;
 import pw.phylame.jiaws.util.LifecycleStateException;
 import pw.phylame.jiaws.util.Validator;
 
@@ -98,7 +97,7 @@ public class Server extends LifecycleSupport {
     public void handleRequest(ServletRequest request, ServletResponse response) {
         setRetainedTo(request);
         setRetainedTo(response);
-        val req = (HttpServletRequestImpl) request;
+        val req = (JiawsHttpRequest) request;
         System.out.println(req.getHeaders().entrySet());
         System.out.println(req.getParameters().entrySet());
         logger.debug("TODO: get servlet and filter");
