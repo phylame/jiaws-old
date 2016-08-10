@@ -55,7 +55,7 @@ class ServletConfigImpl implements ServletConfig, ServletContextAware {
 
     @Override
     public Enumeration<String> getInitParameterNames() {
-        return Enumerations.forCollection(params.keySet());
+        return Enumerations.enumeration(params.keySet());
     }
 
     @Override

@@ -1,34 +1,30 @@
 /*
  * Copyright 2014-2016 Peng Wan <phylame@163.com>
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package pw.phylame.jiaws.servlet;
+
+import static pw.phylame.jiaws.util.ImplementUtils.raiseForImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.text.ParseException;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
@@ -44,52 +40,17 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
-import pw.phylame.jiaws.util.DateUtils;
+import lombok.val;
+import pw.phylame.jiaws.spike.http.HttpRequest;
 import pw.phylame.jiaws.util.Enumerations;
-import pw.phylame.jiaws.util.IPTuple;
 import pw.phylame.jiaws.util.MultiValueMap;
 import pw.phylame.jiaws.util.Provider;
 import pw.phylame.jiaws.util.StringUtils;
 import pw.phylame.jiaws.util.values.LazyValue;
-import pw.phylame.jiaws.util.values.MutableLazyValue;
 
-import static pw.phylame.jiaws.util.ImplementUtils.*;
-
-public class JiawsHttpRequest extends ServletObject implements HttpServletRequest {
-    @Setter
-    private IPTuple localIP;
-
-    @Setter
-    private IPTuple remoteIP;
-
-    @Setter
-    private String serverName;
-
-    @Setter
-    private int serverPort;
-
-    @Setter
-    @Getter
-    private String method;
-
-    @Setter
-    private String path;
-
-    @Setter
-    private String query;
-
-    @Setter
-    @Getter
-    private String protocol;
-
-    @Getter
-    private MultiValueMap<String, String> parameters = new MultiValueMap<>();
-
-    @Getter
-    private MultiValueMap<String, String> headers = new MultiValueMap<>();
+public class JiawsHttpRequest extends AbstractServletRequest implements HttpServletRequest {
+    private HttpRequest httpRequest;
 
     /**
      * Indicates that the input is processed.
@@ -100,18 +61,25 @@ public class JiawsHttpRequest extends ServletObject implements HttpServletReques
         @Override
         public List<Locale> provide() {
             List<Locale> locales = new LinkedList<>();
-            for (String code : Enumerations.asIterable(getHeaders("Accept-Language"))) {
+            for (String code : httpRequest.getHeaders("Accept-Language")) {
                 locales.add(Locale.forLanguageTag(code));
             }
             return locales;
         }
     });
 
-    private MutableLazyValue<String> encoding = new MutableLazyValue<>(new Provider<String>() {
+    private LazyValue<String> query = new LazyValue<>(new Provider<String>() {
         @Override
-        public String provide() {
-            String s = getHeader("Character-Encoding");
-            return s != null ? StringUtils.getSecondPartOf(s, ';') : null;
+        public String provide() throws Exception {
+            StringBuilder b = new StringBuilder();
+            int i = 1, end = httpRequest.getParameters().size();
+            for (val e : httpRequest.getParameters().entrySet()) {
+                b.append(e.getKey()).append('=').append(e.getValue());
+                if (i++ != end) {
+                    b.append('&');
+                }
+            }
+            return b.toString();
         }
     });
 
@@ -123,67 +91,27 @@ public class JiawsHttpRequest extends ServletObject implements HttpServletReques
 
     @Override
     public String getCharacterEncoding() {
-        return encoding.get();
+        return httpRequest.getCharacterEncoding();
     }
 
     @Override
     public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
-        encoding.set(env);
-    }
-
-    @Override
-    public int getContentLength() {
-        long length = getContentLengthLong();
-        return length > Integer.MAX_VALUE ? -1 : (int) length;
+        httpRequest.setCharacterEncoding(env);
     }
 
     @Override
     public long getContentLengthLong() {
-        String str = getHeader("Content-Length");
-        if (str == null) {
-            return -1;
-        }
-        try {
-            return Long.parseLong(str);
-        } catch (NumberFormatException e) {
-            return -1L;
-        }
+        return httpRequest.getContentLength();
     }
 
     @Override
     public String getContentType() {
-        String s = getHeader("Content-Type");
-        return s != null ? StringUtils.getFirstPartOf(s, ';').trim() : null;
+        return httpRequest.getContentType();
     }
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
         return null;
-    }
-
-    @Override
-    public String getParameter(String name) {
-        return parameters.getFirst(name);
-    }
-
-    @Override
-    public Enumeration<String> getParameterNames() {
-        return Enumerations.forCollection(parameters.keySet());
-    }
-
-    @Override
-    public String[] getParameterValues(String name) {
-        Collection<String> c = parameters.get(name);
-        return c != null ? c.toArray(new String[c.size()]) : null;
-    }
-
-    @Override
-    public Map<String, String[]> getParameterMap() {
-        Map<String, String[]> result = new HashMap<>();
-        for (Map.Entry<String, Collection<String>> e : parameters.entrySet()) {
-            result.put(e.getKey(), e.getValue().toArray(new String[0]));
-        }
-        return result;
     }
 
     @Override
@@ -193,39 +121,18 @@ public class JiawsHttpRequest extends ServletObject implements HttpServletReques
 
     @Override
     public String getServerName() {
-        return serverName;
+        return StringUtils.getFirstPartOf(httpRequest.getHost(), ":");
     }
 
     @Override
     public int getServerPort() {
-        return serverPort;
+        return Integer.parseInt(StringUtils.getSecondPartOf(httpRequest.getHost(), ":"));
     }
 
     @Override
     public BufferedReader getReader() throws IOException {
         ensureInputNotProcessed();
         return new BufferedReader(new InputStreamReader(getInputStream(), getCharacterEncoding()));
-    }
-
-    @Override
-    public String getRemoteAddr() {
-        return remoteIP.getIp();
-    }
-
-    @Override
-    public String getRemoteHost() {
-        return remoteIP.getHost();
-    }
-
-    @Override
-    public Locale getLocale() {
-        List<Locale> locales = this.locales.get();
-        return locales.isEmpty() ? Locale.getDefault() : locales.get(0);
-    }
-
-    @Override
-    public Enumeration<Locale> getLocales() {
-        return Enumerations.forCollection(locales.get());
     }
 
     @Override
@@ -236,31 +143,6 @@ public class JiawsHttpRequest extends ServletObject implements HttpServletReques
     @Override
     public RequestDispatcher getRequestDispatcher(String path) {
         return raiseForImpl();
-    }
-
-    @Override
-    public String getRealPath(String path) {
-        return raiseForDeprecated();
-    }
-
-    @Override
-    public int getRemotePort() {
-        return remoteIP.getPort();
-    }
-
-    @Override
-    public String getLocalName() {
-        return localIP.getHost();
-    }
-
-    @Override
-    public String getLocalAddr() {
-        return localIP.getIp();
-    }
-
-    @Override
-    public int getLocalPort() {
-        return localIP.getPort();
     }
 
     private void ensureInAsyncMode() throws IllegalStateException {
@@ -306,41 +188,33 @@ public class JiawsHttpRequest extends ServletObject implements HttpServletReques
 
     @Override
     public Cookie[] getCookies() {
-        return raiseForImpl();
+        return httpRequest.getCookies().toArray(new Cookie[httpRequest.getCookies().size()]);
     }
 
     @Override
     public long getDateHeader(@NonNull String name) {
-        String string = getHeader(name);
-        if (string == null) {
-            return -1;
-        }
-        try {
-            return DateUtils.forGMT(string).getTime();
-        } catch (ParseException e) {
-            throw new IllegalArgumentException(e);
-        }
+        val date = httpRequest.getDateHeader(name);
+        return date != null ? date.getTime() : -1;
     }
 
     @Override
     public String getHeader(@NonNull String name) {
-        return headers.getFirst(name);
+        return httpRequest.getHeader(name);
     }
 
     @Override
     public Enumeration<String> getHeaders(@NonNull String name) {
-        return Enumerations.forCollection(headers.get(name));
+        return Enumerations.enumeration(httpRequest.getHeaders(name));
     }
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        return Enumerations.forCollection(headers.keySet());
+        return Enumerations.enumeration(httpRequest.getHeaderNames());
     }
 
     @Override
     public int getIntHeader(String name) {
-        String s = getHeader(name);
-        return s != null ? Integer.parseInt(s) : -1;
+        return httpRequest.getIntHeader(name);
     }
 
     @Override
@@ -360,7 +234,7 @@ public class JiawsHttpRequest extends ServletObject implements HttpServletReques
 
     @Override
     public String getQueryString() {
-        return null;
+        return query.get();
     }
 
     @Override
@@ -385,12 +259,14 @@ public class JiawsHttpRequest extends ServletObject implements HttpServletReques
 
     @Override
     public String getRequestURI() {
-        return null;
+        return httpRequest.getPath();
     }
 
     @Override
     public StringBuffer getRequestURL() {
-        return null;
+        val b = new StringBuffer();
+        b.append(isSecure() ? "https://" : "http://").append(httpRequest.getHost()).append(httpRequest.getPath());
+        return b;
     }
 
     @Override
@@ -434,6 +310,7 @@ public class JiawsHttpRequest extends ServletObject implements HttpServletReques
     }
 
     @Override
+    @Deprecated
     public boolean isRequestedSessionIdFromUrl() {
         return isRequestedSessionIdFromURL();
     }
@@ -467,6 +344,26 @@ public class JiawsHttpRequest extends ServletObject implements HttpServletReques
     @Override
     public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
         return raiseForImpl();
+    }
+
+    @Override
+    public String getProtocol() {
+        return httpRequest.getProtocol();
+    }
+
+    @Override
+    public String getMethod() {
+        return httpRequest.getMethod();
+    }
+
+    @Override
+    protected MultiValueMap<String, String> getInternalParameters() {
+        return httpRequest.getParameters();
+    }
+
+    @Override
+    protected List<Locale> getInternalLocales() {
+        return locales.get();
     }
 
 }

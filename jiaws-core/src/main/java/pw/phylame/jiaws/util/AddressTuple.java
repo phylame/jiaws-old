@@ -11,21 +11,21 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package pw.phylame.jiaws.util.values;
+package pw.phylame.jiaws.util;
 
-import lombok.Getter;
-import lombok.ToString;
+import java.net.InetAddress;
 
-@ToString
-public class Pair<A, B> {
-    @Getter
-    protected A first;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-    @Getter
-    protected B second;
+@Data
+@AllArgsConstructor
+public class AddressTuple {
+    private String host;
+    private String ip;
+    private int port;
 
-    public <AX extends A, BX extends B> Pair(AX first, BX second) {
-        this.first = first;
-        this.second = second;
+    public AddressTuple(InetAddress address, int port) {
+        this(address.getHostName(), address.getHostAddress(), port);
     }
 }

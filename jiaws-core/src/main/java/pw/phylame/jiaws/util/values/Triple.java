@@ -19,9 +19,4 @@ public class Triple<A, B, C> {
         this.second = second;
         this.third = third;
     }
-
-    public static <A, B, C, AX extends A, BX extends B, CX extends C> Triple<A, B, C> of(AX first, BX second,
-            CX third) {
-        return new Triple<>(first, second, third);
-    }
 }

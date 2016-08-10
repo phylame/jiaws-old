@@ -2,18 +2,17 @@ package pw.phylame.jiaws;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Date;
 
 import lombok.val;
-import pw.phylame.jiaws.io.ChannelInputStream;
-import pw.phylame.jiaws.util.DateUtils;
+import pw.phylame.jiaws.core.Assembly;
+import pw.phylame.jiaws.io.TextContentSource;
+import pw.phylame.jiaws.spike.http.HttpResponse;
 
 public class NIOTest {
 
@@ -46,43 +45,28 @@ public class NIOTest {
     }
 
     private static void recv(SocketChannel sc, ByteBuffer buffer) throws IOException {
-        val in = new ChannelInputStream(sc,10);
-        byte[] buf = new byte[1024];
-//        System.out.println(in.skip(1024));
-        int len = in.read(buf);
-        System.out.println(len);
-        String string = new String(buf, 0, len);
-        System.out.println(string.length());
-        System.out.print(string);
-
-        // ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        // int size;
-        // byte[] bytes;
-        // while ((size = sc.read(buffer)) > 0) {
-        // buffer.flip();
-        // bytes = new byte[size];
-        // buffer.get(bytes);
-        // baos.write(bytes);
-        // buffer.clear();
-        // }
-        // System.out.println("recv:");
-        // System.out.println(new String(baos.toByteArray()));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int size;
+        byte[] bytes;
+        while ((size = sc.read(buffer)) > 0) {
+            buffer.flip();
+            bytes = new byte[size];
+            buffer.get(bytes);
+            baos.write(bytes);
+            buffer.clear();
+        }
+        System.out.println("recv:");
+        System.out.println(new String(baos.toByteArray()));
     }
 
     public static final String CRLF = "\r\n";
 
     private static void send(SocketChannel sc) throws IOException {
-        StringWriter w = new StringWriter();
-        w.append("HTTP/1.1 200 OK").append(CRLF);
-        w.append("Server: Jiaws/1.0").append(CRLF);
-        w.append("Date: ").append(DateUtils.toGMT(new Date())).append(CRLF);
+        val response = new HttpResponse();
+        response.setServerAssembly(new Assembly());
         String text = "<html><head><title>Test</title></head><body><h2>Hello, Jiaws</h2></body></html>";
-        w.append("Content-Type: text/html; charset=UTF-8").append(CRLF);
-        w.append("Content-Length: ").append(Integer.toString(text.length())).append(CRLF);
-        w.append(CRLF);
-        w.append(text);
-        ByteBuffer buffer = ByteBuffer.wrap(w.toString().getBytes());
-        sc.write(buffer);
+        response.setContent(new TextContentSource(text, "UTF-8", "text/html"));
+        response.renderTo(sc.socket().getOutputStream());
         sc.close();
     }
 

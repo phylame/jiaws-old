@@ -33,10 +33,6 @@ public class MutablePair<A, B> extends Pair<A, B> {
     }
 
     public Pair<A, B> copyOf() {
-        return Pair.of(first, second);
-    }
-
-    public static <A, B, AX extends A, BX extends B> MutablePair<A, B> of(AX first, BX second) {
-        return new MutablePair<>(first, second);
+        return new Pair<>(first, second);
     }
 }

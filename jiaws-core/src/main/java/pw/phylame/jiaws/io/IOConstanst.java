@@ -9,5 +9,6 @@ public interface IOConstanst {
     String CRLF = "\r\n";
     String LINE_SEPARATOR = System.getProperty("line.separator");
     String PATH_SEPARATOR = File.pathSeparator;
+    String DEFAULT_ENCODING = System.getProperty("file.encoding");
 
 }

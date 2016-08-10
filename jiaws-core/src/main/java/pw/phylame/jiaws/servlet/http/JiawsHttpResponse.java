@@ -93,12 +93,12 @@ public class JiawsHttpResponse extends AbstractServletResponse implements HttpSe
 
     @Override
     public void setDateHeader(String name, long date) {
-        setHeader(name, DateUtils.toGMT(new Date(date)));
+        setHeader(name, DateUtils.toRFC1123(new Date(date)));
     }
 
     @Override
     public void addDateHeader(String name, long date) {
-        addHeader(name, DateUtils.toGMT(new Date(date)));
+        addHeader(name, DateUtils.toRFC1123(new Date(date)));
     }
 
     @Override
@@ -195,7 +195,7 @@ public class JiawsHttpResponse extends AbstractServletResponse implements HttpSe
 
     private void writeHeaderFields(PrintStream ps) throws IOException {
         // general header
-        writeHeaderField(ps, "Date", DateUtils.toGMT(new Date()));
+        writeHeaderField(ps, "Date", DateUtils.toRFC1123(new Date()));
         // response header
         writeHeaderField(ps, "Server", serverRef.get().getAssembly().getVersionInfo());
         // entity header

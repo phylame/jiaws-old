@@ -1,17 +1,14 @@
 /*
  * Copyright 2016 Peng Wan <phylame@163.com>
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 
 package pw.phylame.jiaws.util;
@@ -28,23 +25,40 @@ public final class Enumerations {
     }
 
     public static <E> Enumeration<E> emptyEnumeration() {
-        return new IteratorEnumeration<>(Collections.<E>emptyIterator());
+        return Collections.emptyEnumeration();
     }
 
-    public static <E> Enumeration<E> forIterator(@NonNull Iterator<E> iterator) {
+    public static <E> Enumeration<E> singleton(final E obj) {
+        return new Enumeration<E>() {
+            private boolean accessed = false;
+
+            @Override
+            public boolean hasMoreElements() {
+                return !accessed;
+            }
+
+            @Override
+            public E nextElement() {
+                accessed = true;
+                return obj;
+            }
+        };
+    }
+
+    public static <E> Enumeration<E> enumeration(@NonNull Iterator<E> iterator) {
         return new IteratorEnumeration<>(iterator);
     }
 
-    public static <E> Enumeration<E> forCollection(@NonNull Collection<E> collection) {
-        return new IteratorEnumeration<>(collection);
+    public static <E> Enumeration<E> enumeration(@NonNull Collection<E> collection) {
+        return Collections.enumeration(collection);
     }
 
-    public static <E> Iterator<E> asIterator(Enumeration<E> e) {
+    public static <E> Iterator<E> iterator(Enumeration<E> e) {
         return new EnumerationIterator<>(e);
     }
 
-    public static <E> Iterable<E> asIterable(Enumeration<E> e) {
-        return new SimpleIterable<>(asIterator(e));
+    public static <E> Iterable<E> iterable(Enumeration<E> e) {
+        return new SimpleIterable<>(iterator(e));
     }
 
     private static class IteratorEnumeration<E> implements Enumeration<E> {

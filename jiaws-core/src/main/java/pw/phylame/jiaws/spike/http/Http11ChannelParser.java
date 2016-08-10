@@ -1,9 +1,6 @@
 package pw.phylame.jiaws.spike.http;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,9 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.val;
 import pw.phylame.jiaws.io.ChannelInputStream;
-import pw.phylame.jiaws.io.IOConstanst;
 import pw.phylame.jiaws.servlet.JiawsHttpRequest;
-import pw.phylame.jiaws.servlet.http.JiawsHttpResponse;
 import pw.phylame.jiaws.spike.ChannelInput;
 import pw.phylame.jiaws.spike.ProtocolParser;
 import pw.phylame.jiaws.util.ImplementUtils;

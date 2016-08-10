@@ -24,11 +24,6 @@ public class MutableTriple<A, B, C> extends Triple<A, B, C> {
     }
 
     public Triple<A, B, C> copyOf() {
-        return Triple.of(first, second, third);
-    }
-
-    public static <A, B, C, AX extends A, BX extends B, CX extends C> MutableTriple<A, B, C> of(AX first, BX second,
-            CX third) {
-        return new MutableTriple<>(first, second, third);
+        return new Triple<>(first, second, third);
     }
 }

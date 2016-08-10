@@ -17,7 +17,7 @@ import pw.phylame.jiaws.servlet.JiawsHttpRequest;
 import pw.phylame.jiaws.servlet.http.JiawsHttpResponse;
 import pw.phylame.jiaws.spike.ProtocolParser;
 import pw.phylame.jiaws.spike.SocketInput;
-import pw.phylame.jiaws.util.IPTuple;
+import pw.phylame.jiaws.util.AddressTuple;
 import pw.phylame.jiaws.util.ProtocolException;
 import pw.phylame.jiaws.util.values.Pair;
 
@@ -62,7 +62,7 @@ public class Http11SocketParser
     private void parseRequestLine(InputStream in, StringBuilder b, JiawsHttpRequest request)
             throws IOException, ProtocolException {
         b.setLength(0);
-        val parameters = request.getParameters();
+        val parameters = request.getInternalParameters();
         int ch, order = 0, recvNum = 0;
         String method = null, path = null, protocol = null;
         StringBuilder query = new StringBuilder();
@@ -225,7 +225,7 @@ public class Http11SocketParser
 
     private void parsePostParameters(InputStream in, long length, StringBuilder b, JiawsHttpRequest request)
             throws IOException, ProtocolException {
-        val parameters = request.getParameters();
+        val parameters = request.getInternalParameters();
         long recvNum = 0;
         int ch;
         String name = null, value = null;
@@ -260,8 +260,8 @@ public class Http11SocketParser
     }
 
     private void setAddressInfo(Socket socket, JiawsHttpRequest request) {
-        request.setLocalIP(new IPTuple(socket.getLocalAddress(), socket.getLocalPort()));
-        request.setRemoteIP(new IPTuple(socket.getInetAddress(), socket.getPort()));
+        request.setLocalIP(new AddressTuple(socket.getLocalAddress(), socket.getLocalPort()));
+        request.setRemoteIP(new AddressTuple(socket.getInetAddress(), socket.getPort()));
     }
 
 }

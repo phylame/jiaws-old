@@ -51,7 +51,7 @@ public class AttributeSupport {
     }
 
     public Enumeration<String> getAttributeNames() {
-        return Enumerations.forCollection(getAttributeKeys());
+        return Enumerations.enumeration(getAttributeKeys());
     }
 
     public void setAttribute(@NonNull String name, Object value) {
