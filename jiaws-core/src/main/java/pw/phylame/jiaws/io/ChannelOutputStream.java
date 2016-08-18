@@ -45,17 +45,17 @@ public class ChannelOutputStream extends OutputStream {
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        if (len >= buffer.remaining()) {
-            flushBuffer();
-            out.write(b, off, len);
-            
-            return;
-        }
-        if (len > buf.length - count) {
-            flushBuffer();
-        }
-        System.arraycopy(b, off, buf, count, len);
-        count += len;
+        // if (len >= buffer.remaining()) {
+        // flushBuffer();
+        // out.write(b, off, len);
+        //
+        // return;
+        // }
+        // if (len > buf.length - count) {
+        // flushBuffer();
+        // }
+        // System.arraycopy(b, off, buf, count, len);
+        // count += len;
     }
 
     @Override

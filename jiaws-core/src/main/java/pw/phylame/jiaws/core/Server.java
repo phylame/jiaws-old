@@ -97,9 +97,6 @@ public class Server extends LifecycleSupport {
     public void handleRequest(ServletRequest request, ServletResponse response) {
         setRetainedTo(request);
         setRetainedTo(response);
-        val req = (JiawsHttpRequest) request;
-        System.out.println(req.getHeaders().entrySet());
-        System.out.println(req.getInternalParameters().entrySet());
         logger.debug("TODO: get servlet and filter");
         val cookie = new Cookie("name", "pw");
         cookie.setDomain("test.com");
