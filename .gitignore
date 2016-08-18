@@ -1,9 +1,7 @@
+# Java compiled files
 *.class
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# Package Files
 *.jar
 *.war
 *.ear
@@ -12,13 +10,29 @@
 hs_err_pid*
 
 # Maven output
-*/target/
+target/
 
 # Eclipse files
-*/.project
-*/.classpath
-*/.settings/
+bin/
+.project
+.classpath
+.settings/
 
 # IDEA files
-*/.idea/
-*/*.iml
+out/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim swap
+*.swp
+
+# Linux files
+*~
+
+# Windows files
+Desktop.ini
+Thumbs.db
+ehthumbs.db
+*.lnk
