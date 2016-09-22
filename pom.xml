@@ -41,6 +41,10 @@
 		</developer>
 	</developers>
 
+	<modules>
+			<module>jiaws-core</module>
+	</modules>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
