@@ -1,5 +1,10 @@
 package pw.phylame.jiaws.spike.http;
 
+import static pw.phylame.ycl.util.StringUtils.isEmpty;
+import static pw.phylame.ycl.util.StringUtils.isNotEmpty;
+import static pw.phylame.ycl.util.StringUtils.secondPartOf;
+import static pw.phylame.ycl.util.StringUtils.valueOfName;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -18,14 +23,13 @@ import lombok.ToString;
 import lombok.val;
 import pw.phylame.jiaws.io.ByteStorage;
 import pw.phylame.jiaws.io.LimitedInputStream;
-import pw.phylame.jiaws.util.DateUtils;
 import pw.phylame.jiaws.util.Exceptions;
 import pw.phylame.jiaws.util.HttpException;
-import pw.phylame.jiaws.util.MultiValueMap;
 import pw.phylame.jiaws.util.NumberUtils;
-import pw.phylame.jiaws.util.Provider;
-import pw.phylame.jiaws.util.StringUtils;
-import pw.phylame.jiaws.util.values.MutableLazyValue;
+import pw.phylame.ycl.util.DateUtils;
+import pw.phylame.ycl.util.MultiValueMap;
+import pw.phylame.ycl.util.Provider;
+import pw.phylame.ycl.value.Lazy;
 
 @ToString
 public class HttpRequest extends HttpObject {
@@ -58,11 +62,11 @@ public class HttpRequest extends HttpObject {
     @Getter
     private long contentLength;
 
-    private MutableLazyValue<String> encoding = new MutableLazyValue<>(new Provider<String>() {
+    private Lazy<String> encoding = new Lazy<>(new Provider<String>() {
         @Override
         public String provide() {
-            String s = getHeader("Character-Encoding");
-            return s != null ? StringUtils.getSecondPartOf(s, ';') : null;
+            val str = getHeader("Character-Encoding");
+            return isNotEmpty(str) ? secondPartOf(str, ';') : null;
         }
     });
 
@@ -78,7 +82,7 @@ public class HttpRequest extends HttpObject {
     }
 
     public String getParameter(String name) {
-        return parameters.getFirst(name);
+        return parameters.getOne(name);
     }
 
     public int getIntHeader(String name) {
@@ -201,7 +205,7 @@ public class HttpRequest extends HttpObject {
             break;
             }
         }
-        if (StringUtils.isEmpty(getMethod()) || StringUtils.isEmpty(path) || StringUtils.isEmpty(getProtocol())) {
+        if (isEmpty(getMethod()) || isEmpty(path) || isEmpty(getProtocol())) {
             throw exc;
         }
         if (getProtocol().endsWith("0.9")) {
@@ -214,12 +218,12 @@ public class HttpRequest extends HttpObject {
         if (b == -1) {
             throw exc;
         }
-        int n = NumberUtils.hexValue((char) b) << 4;
+        int n = NumberUtils.valueOf((char) b) << 4;
         b = input.read();
         if (b == -1) {
             throw exc;
         }
-        n += NumberUtils.hexValue((char) b);
+        n += NumberUtils.valueOf((char) b);
         buf.append((byte) n);
     }
 
@@ -288,7 +292,7 @@ public class HttpRequest extends HttpObject {
         contentLength = getLongHeader("Content-Length");
         headers.remove("Content-Length");
         if (contentType != null) {
-            characterEncoding = StringUtils.getValueOfName(contentType, "charset", ";", true);
+            characterEncoding = valueOfName(contentType, "charset", ";", true, null);
         } else {
             return;
         }

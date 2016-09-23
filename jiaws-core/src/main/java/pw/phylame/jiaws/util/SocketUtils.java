@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import lombok.NonNull;
 import lombok.val;
-import pw.phylame.jiaws.util.values.Triple;
+import pw.phylame.ycl.value.Triple;
 
 public final class SocketUtils {
     private static final Logger logger = LoggerFactory.getLogger(SocketUtils.class);

@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import pw.phylame.jiaws.util.values.LazyValue;
+import pw.phylame.ycl.util.Provider;
+import pw.phylame.ycl.value.Lazy;
 
 public final class HttpUtils {
     private HttpUtils() {
@@ -28,7 +29,7 @@ public final class HttpUtils {
 
     public static final String HTTP_STATUS_FILE = "/pw/phylame/jiaws/http/status.properties";
 
-    private static final LazyValue<Properties> httpStatus = new LazyValue<>(new Provider<Properties>() {
+    private static final Lazy<Properties> httpStatus = new Lazy<>(new Provider<Properties>() {
         @Override
         public Properties provide() throws IOException {
             return loadHttpStatus();

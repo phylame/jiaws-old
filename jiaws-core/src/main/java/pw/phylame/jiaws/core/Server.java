@@ -23,9 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.val;
-import pw.phylame.jiaws.servlet.JiawsHttpRequest;
 import pw.phylame.jiaws.util.LifecycleStateException;
-import pw.phylame.jiaws.util.Validator;
+import pw.phylame.ycl.util.Validate;
 
 public class Server extends LifecycleSupport {
     @Getter
@@ -41,8 +40,8 @@ public class Server extends LifecycleSupport {
     }
 
     protected void init() {
-        Validator.notNull(config.getAddress(), "Address cannot be null");
-        Validator.notNull(config.getConnector(), "Connector cannot be null");
+        Validate.requireNotNull(config.getAddress(), "Address cannot be null");
+        Validate.requireNotNull(config.getConnector(), "Connector cannot be null");
         config.getConnector().setAddress(config.getAddress());
         setRetainedTo(config.getConnector());
         // when JVM exit, stop the server
@@ -90,9 +89,9 @@ public class Server extends LifecycleSupport {
      * Sends request and response to servlet.
      *
      * @param request
-     *            the request
+     *        the request
      * @param response
-     *            the response
+     *        the response
      */
     public void handleRequest(ServletRequest request, ServletResponse response) {
         setRetainedTo(request);

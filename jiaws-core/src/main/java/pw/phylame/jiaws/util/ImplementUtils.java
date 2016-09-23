@@ -21,20 +21,20 @@ public final class ImplementUtils {
 
     /**
      * Throws an <code>IllegalStateException<code> when invoking deprecated method.
-     * 
+     *
      * @return nothing returned(used for invoker)
      * @throws IllegalStateException
      */
     public static <T> T raiseForDeprecated() throws IllegalStateException {
-        String invokerName = Thread.currentThread().getStackTrace()[2].getMethodName();
-        throw Exceptions.forIllegalState("Method '%s' is deprecated", invokerName);
+        val invoker = Thread.currentThread().getStackTrace()[2].getMethodName();
+        throw Exceptions.forIllegalState("Method '%s' is deprecated", invoker);
     }
 
     /**
      * Throws an <code>IllegalStateException<code> indicate a TODO.
-     * 
+     *
      * @param message
-     *            the error message
+     *        the error message
      * @return nothing returned(used for invoker)
      * @throws IllegalStateException
      */
@@ -44,12 +44,13 @@ public final class ImplementUtils {
 
     /**
      * Throws an <code>IllegalStateException<code> when developing method.
-     * 
+     *
      * @return nothing returned(used for invoker)
      */
     public static <T> T raiseForImpl() {
         val stacks = Thread.currentThread().getStackTrace();
-        throw Exceptions.forIllegalState("Method '%s.%s' is under development", stacks[2].getClassName(),
+        throw Exceptions.forIllegalState("Method '%s.%s' is under development",
+                stacks[2].getClassName(),
                 stacks[2].getMethodName());
     }
 }

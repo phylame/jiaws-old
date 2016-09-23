@@ -1,5 +1,7 @@
 package pw.phylame.jiaws.spike.http;
 
+import static pw.phylame.ycl.util.StringUtils.isNotEmpty;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -18,9 +20,8 @@ import lombok.val;
 import pw.phylame.jiaws.core.Assembly;
 import pw.phylame.jiaws.io.ContentSource;
 import pw.phylame.jiaws.io.IOConstanst;
-import pw.phylame.jiaws.util.DateUtils;
 import pw.phylame.jiaws.util.HttpUtils;
-import pw.phylame.jiaws.util.StringUtils;
+import pw.phylame.ycl.util.DateUtils;
 
 @ToString
 public class HttpResponse extends HttpObject {
@@ -83,9 +84,9 @@ public class HttpResponse extends HttpObject {
     }
 
     private void writeRequestLine(Writer w) throws IOException {
-        w.append(StringUtils.isNotEmpty(getProtocol()) ? getProtocol() : "HTTP/1.1").append(' ');
+        w.append(isNotEmpty(getProtocol()) ? getProtocol() : "HTTP/1.1").append(' ');
         w.append(Integer.toString(status)).append(' ');
-        w.append(StringUtils.isNotEmpty(message) ? message : HttpUtils.getStatusReason(status))
+        w.append(isNotEmpty(message) ? message : HttpUtils.getStatusReason(status))
                 .append(IOConstanst.CRLF);
         w.flush();
     }
@@ -94,7 +95,7 @@ public class HttpResponse extends HttpObject {
         // general header
         writeHeaderField(w, "Date", DateUtils.toRFC1123(new Date()));
         // response header
-        writeHeaderField(w, "Server", serverAssembly.getVersionInfo());
+        writeHeaderField(w, "Server", serverAssembly.toString());
         // entity header
         if (content != null) {
             writeHeaderField(w, "Content-Encoding", content.getEncoding());

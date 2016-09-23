@@ -17,6 +17,7 @@
 package pw.phylame.jiaws.servlet;
 
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -24,7 +25,6 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
 import lombok.NonNull;
-import pw.phylame.jiaws.util.Enumerations;
 
 class ServletConfigImpl implements ServletConfig, ServletContextAware {
     private WeakReference<ServletContext> contextRef;
@@ -55,7 +55,7 @@ class ServletConfigImpl implements ServletConfig, ServletContextAware {
 
     @Override
     public Enumeration<String> getInitParameterNames() {
-        return Enumerations.enumeration(params.keySet());
+        return Collections.enumeration(params.keySet());
     }
 
     @Override

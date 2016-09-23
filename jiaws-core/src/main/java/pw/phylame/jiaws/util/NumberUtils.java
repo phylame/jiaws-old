@@ -13,15 +13,26 @@
 
 package pw.phylame.jiaws.util;
 
+import pw.phylame.ycl.util.StringUtils;
+
+/**
+ * Utilities for number.
+ * <p>
+ * Created: 2016-09-23 11:16:41
+ *
+ * @author PW[phylame@163.com]
+ */
 public final class NumberUtils {
     private NumberUtils() {
     }
 
-    public static int hexValue(char ch) {
+    public static int valueOf(char ch) {
         if (ch >= '0' && ch <= '9') {
             return ch - '0';
         }
-        ch = Character.toLowerCase(ch);
+        if (ch >= 'A' && ch <= 'F') {
+            return ch - 'A' + 10;
+        }
         if (ch >= 'a' && ch <= 'f') {
             return ch - 'a' + 10;
         }
@@ -33,7 +44,7 @@ public final class NumberUtils {
     }
 
     public static int parseInt(String str, int radix, int defaultValue) {
-        if (str == null) {
+        if (StringUtils.isEmpty(str)) {
             return defaultValue;
         }
         try {
@@ -43,18 +54,18 @@ public final class NumberUtils {
         }
     }
 
-    public static long parseLong(String str, long defaultValue) {
-        return parseLong(str, 10, defaultValue);
+    public static long parseLong(String str, long fallback) {
+        return parseLong(str, 10, fallback);
     }
 
-    public static long parseLong(String str, int radix, long defaultValue) {
-        if (str == null) {
-            return defaultValue;
+    public static long parseLong(String str, int radix, long fallback) {
+        if (StringUtils.isEmpty(str)) {
+            return fallback;
         }
         try {
             return Long.parseLong(str, radix);
         } catch (NumberFormatException e) {
-            return defaultValue;
+            return fallback;
         }
     }
 

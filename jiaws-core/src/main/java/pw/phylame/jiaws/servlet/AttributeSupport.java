@@ -16,13 +16,13 @@
 
 package pw.phylame.jiaws.servlet;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import lombok.NonNull;
-import pw.phylame.jiaws.util.Enumerations;
 
 public class AttributeSupport {
     private final Map<String, Object> attributes;
@@ -51,7 +51,7 @@ public class AttributeSupport {
     }
 
     public Enumeration<String> getAttributeNames() {
-        return Enumerations.enumeration(getAttributeKeys());
+        return Collections.enumeration(getAttributeKeys());
     }
 
     public void setAttribute(@NonNull String name, Object value) {
@@ -80,7 +80,7 @@ public class AttributeSupport {
      * Checks the attributes is accessible or not.
      *
      * @throws RuntimeException
-     *             if is not accessible
+     *         if is not accessible
      */
     protected void checkAccessible() throws RuntimeException {
 

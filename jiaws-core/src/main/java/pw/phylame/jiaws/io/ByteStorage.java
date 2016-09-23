@@ -16,10 +16,10 @@
 
 package pw.phylame.jiaws.io;
 
-import pw.phylame.jiaws.util.Validator;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+
+import pw.phylame.ycl.util.Validate;
 
 public class ByteStorage {
     private byte[] buf;
@@ -86,7 +86,7 @@ public class ByteStorage {
     }
 
     public final ByteStorage append(byte[] b, int off, int len) {
-        Validator.notNull(b);
+        Validate.requireNotNull(b);
         if (len <= 0) {
             return this;
         }

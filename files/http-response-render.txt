@@ -1,9 +1,0 @@
-status and headers
-content buffer
-
-1. set with setContentLength(Long)
-	write Content-Length with the value
-2. not 1 and call flushBuffer
-	write Transfer-Encoding with  chunked
-3. not 1 and 2
-	write Content-Length with count valud

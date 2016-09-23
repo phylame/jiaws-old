@@ -35,7 +35,7 @@ import lombok.val;
 import pw.phylame.jiaws.core.Server;
 import pw.phylame.jiaws.core.ServerAware;
 import pw.phylame.jiaws.io.ResponseOutputStream;
-import pw.phylame.jiaws.util.StringUtils;
+import pw.phylame.ycl.util.StringUtils;
 
 public abstract class AbstractServletResponse
         implements ServletResponse, ServerAware, ResponseOutputStream.OnFirstCommitListener {
@@ -146,7 +146,7 @@ public abstract class AbstractServletResponse
         if (type != null && !isCommitted()) {
             StringBuilder b = new StringBuilder();
             String first, second;
-            for (val pair : StringUtils.getNamedParts(type, ";")) {
+            for (val pair : StringUtils.getNamedPairs(type, ";")) {
                 first = pair.getFirst();
                 second = pair.getSecond();
                 if (first.equalsIgnoreCase("charset") && !second.isEmpty()) {

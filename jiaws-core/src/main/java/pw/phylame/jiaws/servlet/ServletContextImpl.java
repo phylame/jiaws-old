@@ -19,6 +19,7 @@ package pw.phylame.jiaws.servlet;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.Map;
@@ -36,8 +37,7 @@ import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
 
-import pw.phylame.jiaws.util.Enumerations;
-import pw.phylame.jiaws.util.FileUtils;
+import pw.phylame.ycl.io.PathUtils;
 
 public class ServletContextImpl extends AttributeSupport implements ServletContext {
     private String path;
@@ -75,7 +75,7 @@ public class ServletContextImpl extends AttributeSupport implements ServletConte
 
     @Override
     public String getMimeType(String file) {
-        return FileUtils.getMimeType(file);
+        return PathUtils.mimeFor(file);
     }
 
     @Override
@@ -115,12 +115,12 @@ public class ServletContextImpl extends AttributeSupport implements ServletConte
 
     @Override
     public Enumeration<Servlet> getServlets() {
-        return Enumerations.emptyEnumeration();
+        return Collections.emptyEnumeration();
     }
 
     @Override
     public Enumeration<String> getServletNames() {
-        return Enumerations.emptyEnumeration();
+        return Collections.emptyEnumeration();
     }
 
     @Override

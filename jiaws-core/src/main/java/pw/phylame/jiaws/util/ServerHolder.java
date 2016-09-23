@@ -1,4 +1,4 @@
-package pw.phylame.jiaws;
+package pw.phylame.jiaws.util;
 
 import java.lang.ref.WeakReference;
 

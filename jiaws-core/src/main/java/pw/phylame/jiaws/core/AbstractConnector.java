@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import pw.phylame.jiaws.spike.InputObject;
-import pw.phylame.jiaws.util.Validator;
+import pw.phylame.ycl.util.Validate;
 
 public abstract class AbstractConnector<I extends InputObject> extends LifecycleSupport
         implements Connector<I>, ServerAware {
@@ -50,8 +50,8 @@ public abstract class AbstractConnector<I extends InputObject> extends Lifecycle
     }
 
     protected void validateConfig(ConnectorConfig<I> config) {
-        Validator.notNull(config.getDispatcher(), "Dispatcher cannot be null");
-        Validator.notNull(config.getParser(), "Parser cannot be null");
+        Validate.requireNotNull(config.getDispatcher(), "Dispatcher cannot be null");
+        Validate.requireNotNull(config.getParser(), "Parser cannot be null");
     }
 
     @Override
@@ -63,7 +63,7 @@ public abstract class AbstractConnector<I extends InputObject> extends Lifecycle
 
     @Override
     protected void doStart() throws IOException {
-        Validator.notNull(address, "Required socket address is null");
+        Validate.requireNotNull(address, "Required socket address is null");
     }
 
     @Override

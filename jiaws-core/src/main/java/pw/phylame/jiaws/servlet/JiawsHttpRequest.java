@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,11 +44,10 @@ import javax.servlet.http.Part;
 import lombok.NonNull;
 import lombok.val;
 import pw.phylame.jiaws.spike.http.HttpRequest;
-import pw.phylame.jiaws.util.Enumerations;
-import pw.phylame.jiaws.util.MultiValueMap;
-import pw.phylame.jiaws.util.Provider;
-import pw.phylame.jiaws.util.StringUtils;
-import pw.phylame.jiaws.util.values.LazyValue;
+import pw.phylame.ycl.util.MultiValueMap;
+import pw.phylame.ycl.util.Provider;
+import pw.phylame.ycl.util.StringUtils;
+import pw.phylame.ycl.value.Lazy;
 
 public class JiawsHttpRequest extends AbstractServletRequest implements HttpServletRequest {
     private HttpRequest httpRequest;
@@ -57,7 +57,7 @@ public class JiawsHttpRequest extends AbstractServletRequest implements HttpServ
      */
     private boolean doneInput = false;
 
-    private LazyValue<List<Locale>> locales = new LazyValue<>(new Provider<List<Locale>>() {
+    private Lazy<List<Locale>> locales = new Lazy<>(new Provider<List<Locale>>() {
         @Override
         public List<Locale> provide() {
             List<Locale> locales = new LinkedList<>();
@@ -68,7 +68,7 @@ public class JiawsHttpRequest extends AbstractServletRequest implements HttpServ
         }
     });
 
-    private LazyValue<String> query = new LazyValue<>(new Provider<String>() {
+    private Lazy<String> query = new Lazy<>(new Provider<String>() {
         @Override
         public String provide() throws Exception {
             StringBuilder b = new StringBuilder();
@@ -116,17 +116,17 @@ public class JiawsHttpRequest extends AbstractServletRequest implements HttpServ
 
     @Override
     public String getScheme() {
-        return StringUtils.getFirstPartOf(getProtocol(), '/').toLowerCase();
+        return StringUtils.firstPartOf(getProtocol(), '/').toLowerCase();
     }
 
     @Override
     public String getServerName() {
-        return StringUtils.getFirstPartOf(httpRequest.getHost(), ":");
+        return StringUtils.firstPartOf(httpRequest.getHost(), ":");
     }
 
     @Override
     public int getServerPort() {
-        return Integer.parseInt(StringUtils.getSecondPartOf(httpRequest.getHost(), ":"));
+        return Integer.parseInt(StringUtils.secondPartOf(httpRequest.getHost(), ":"));
     }
 
     @Override
@@ -204,12 +204,12 @@ public class JiawsHttpRequest extends AbstractServletRequest implements HttpServ
 
     @Override
     public Enumeration<String> getHeaders(@NonNull String name) {
-        return Enumerations.enumeration(httpRequest.getHeaders(name));
+        return Collections.enumeration(httpRequest.getHeaders(name));
     }
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        return Enumerations.enumeration(httpRequest.getHeaderNames());
+        return Collections.enumeration(httpRequest.getHeaderNames());
     }
 
     @Override

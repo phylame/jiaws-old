@@ -13,7 +13,7 @@ import pw.phylame.jiaws.spike.ChannelInput;
 import pw.phylame.jiaws.spike.ProtocolParser;
 import pw.phylame.jiaws.util.ImplementUtils;
 import pw.phylame.jiaws.util.ProtocolException;
-import pw.phylame.jiaws.util.values.Pair;
+import pw.phylame.ycl.value.Pair;
 
 public class Http11ChannelParser implements ProtocolParser<HttpServletRequest, HttpServletResponse, ChannelInput> {
 

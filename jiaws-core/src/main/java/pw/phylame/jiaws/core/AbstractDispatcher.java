@@ -20,10 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lombok.val;
-import pw.phylame.jiaws.ServerHolder;
 import pw.phylame.jiaws.io.IOUtils;
 import pw.phylame.jiaws.spike.InputObject;
 import pw.phylame.jiaws.spike.ProtocolParser;
+import pw.phylame.jiaws.util.ServerHolder;
 
 public abstract class AbstractDispatcher<I extends InputObject> extends ServerHolder implements Dispatcher<I> {
     protected final Logger logger = LoggerFactory.getLogger(getClass());

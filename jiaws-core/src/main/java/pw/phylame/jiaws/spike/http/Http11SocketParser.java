@@ -17,7 +17,7 @@ import pw.phylame.jiaws.servlet.http.JiawsHttpResponse;
 import pw.phylame.jiaws.spike.ProtocolParser;
 import pw.phylame.jiaws.spike.SocketInput;
 import pw.phylame.jiaws.util.ProtocolException;
-import pw.phylame.jiaws.util.values.Pair;
+import pw.phylame.ycl.value.Pair;
 
 public class Http11SocketParser
         implements ProtocolParser<JiawsHttpRequest, JiawsHttpResponse, SocketInput>, ServerAware {

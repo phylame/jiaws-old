@@ -14,11 +14,11 @@ import lombok.Getter;
 import lombok.val;
 import pw.phylame.jiaws.io.ResponseOutputStream;
 import pw.phylame.jiaws.servlet.AbstractServletResponse;
-import pw.phylame.jiaws.util.DateUtils;
 import pw.phylame.jiaws.util.Exceptions;
 import pw.phylame.jiaws.util.HttpUtils;
 import pw.phylame.jiaws.util.ImplementUtils;
-import pw.phylame.jiaws.util.MultiValueMap;
+import pw.phylame.ycl.util.DateUtils;
+import pw.phylame.ycl.util.MultiValueMap;
 
 public class JiawsHttpResponse extends AbstractServletResponse implements HttpServletResponse {
     private String protocol = "HTTP/1.1";
@@ -149,7 +149,7 @@ public class JiawsHttpResponse extends AbstractServletResponse implements HttpSe
 
     @Override
     public String getHeader(String name) {
-        return headers.getFirst(name);
+        return headers.getOne(name);
     }
 
     @Override
@@ -197,7 +197,7 @@ public class JiawsHttpResponse extends AbstractServletResponse implements HttpSe
         // general header
         writeHeaderField(ps, "Date", DateUtils.toRFC1123(new Date()));
         // response header
-        writeHeaderField(ps, "Server", serverRef.get().getAssembly().getVersionInfo());
+        writeHeaderField(ps, "Server", serverRef.get().getAssembly().toString());
         // entity header
         writeHeaderField(ps, "Content-Encoding", contentEncoding);
         writeHeaderField(ps, "Content-Length", getContentLength());

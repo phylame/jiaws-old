@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -21,10 +22,9 @@ import javax.servlet.ServletResponse;
 import lombok.Setter;
 import lombok.val;
 import pw.phylame.jiaws.util.AddressTuple;
-import pw.phylame.jiaws.util.Enumerations;
-import pw.phylame.jiaws.util.MultiValueMap;
-import pw.phylame.jiaws.util.Provider;
-import pw.phylame.jiaws.util.values.LazyValue;
+import pw.phylame.ycl.util.MultiValueMap;
+import pw.phylame.ycl.util.Provider;
+import pw.phylame.ycl.value.Lazy;
 
 public abstract class AbstractServletRequest extends ServletObject implements ServletRequest {
     @Setter
@@ -33,30 +33,31 @@ public abstract class AbstractServletRequest extends ServletObject implements Se
     @Setter
     private AddressTuple remoteAddress;
 
-    private final LazyValue<Enumeration<String>> parameterNames = new LazyValue<>(new Provider<Enumeration<String>>() {
+    private final Lazy<Enumeration<String>> parameterNames = new Lazy<>(new Provider<Enumeration<String>>() {
         @Override
         public Enumeration<String> provide() throws Exception {
-            return Enumerations.enumeration(getInternalParameters().keySet());
+            return Collections.enumeration(getInternalParameters().keySet());
         }
     });
 
-    private final LazyValue<Map<String, String[]>> parameterMap = new LazyValue<>(
-            new Provider<Map<String, String[]>>() {
-                @Override
-                public Map<String, String[]> provide() throws Exception {
-                    Map<String, String[]> result = new HashMap<>();
-                    for (Map.Entry<String, Collection<String>> e : getInternalParameters().entrySet()) {
-                        result.put(e.getKey(), e.getValue().toArray(new String[0]));
-                    }
-                    return result;
-                }
-            });
+    private final Lazy<Map<String, String[]>> parameterMap = new Lazy<>(new Provider<Map<String, String[]>>() {
+        @Override
+        public Map<String, String[]> provide() throws Exception {
+            Map<String, String[]> result = new HashMap<>();
+            for (Map.Entry<String, Collection<String>> e : getInternalParameters().entrySet()) {
+                result.put(e.getKey(), e.getValue().toArray(new String[0]));
+            }
+            return result;
+        }
+    });
 
-    private final LazyValue<Enumeration<Locale>> locales = new LazyValue<>(new Provider<Enumeration<Locale>>() {
+    private final Lazy<Enumeration<Locale>> locales = new Lazy<>(new Provider<Enumeration<Locale>>() {
         @Override
         public Enumeration<Locale> provide() throws Exception {
             val locales = getInternalLocales();
-            return !locales.isEmpty() ? Enumerations.enumeration(locales) : Enumerations.singleton(Locale.getDefault());
+            return !locales.isEmpty()
+                    ? Collections.enumeration(locales)
+                    : Collections.enumeration(Collections.singleton(Locale.getDefault()));
         }
     });
 
@@ -70,7 +71,7 @@ public abstract class AbstractServletRequest extends ServletObject implements Se
 
     @Override
     public final String getParameter(String name) {
-        return getInternalParameters().getFirst(name);
+        return getInternalParameters().getOne(name);
     }
 
     @Override
