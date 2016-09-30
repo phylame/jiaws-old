@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import lombok.Getter;
 import lombok.Setter;
-import pw.phylame.ycl.util.MultiValueMap;
+import pw.phylame.ycl.util.MultiMap;
 
 public abstract class HttpObject {
     @Getter
@@ -16,7 +16,7 @@ public abstract class HttpObject {
     private String method;
 
     @Getter
-    private final MultiValueMap<String, String> headers = new MultiValueMap<>();
+    private final MultiMap<String, String> headers = new MultiMap<>();
 
     public final String getHeader(String name) {
         return headers.getOne(name);

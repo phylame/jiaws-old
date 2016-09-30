@@ -22,7 +22,7 @@ import javax.servlet.ServletResponse;
 import lombok.Setter;
 import lombok.val;
 import pw.phylame.jiaws.util.AddressTuple;
-import pw.phylame.ycl.util.MultiValueMap;
+import pw.phylame.ycl.util.MultiMap;
 import pw.phylame.ycl.util.Provider;
 import pw.phylame.ycl.value.Lazy;
 
@@ -67,7 +67,7 @@ public abstract class AbstractServletRequest extends ServletObject implements Se
         return length > Integer.MAX_VALUE ? -1 : (int) length;
     }
 
-    protected abstract MultiValueMap<String, String> getInternalParameters();
+    protected abstract MultiMap<String, String> getInternalParameters();
 
     @Override
     public final String getParameter(String name) {

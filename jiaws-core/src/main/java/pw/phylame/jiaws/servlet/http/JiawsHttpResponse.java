@@ -18,7 +18,7 @@ import pw.phylame.jiaws.util.Exceptions;
 import pw.phylame.jiaws.util.HttpUtils;
 import pw.phylame.jiaws.util.ImplementUtils;
 import pw.phylame.ycl.util.DateUtils;
-import pw.phylame.ycl.util.MultiValueMap;
+import pw.phylame.ycl.util.MultiMap;
 
 public class JiawsHttpResponse extends AbstractServletResponse implements HttpServletResponse {
     private String protocol = "HTTP/1.1";
@@ -32,7 +32,7 @@ public class JiawsHttpResponse extends AbstractServletResponse implements HttpSe
 
     private String contentEncoding = null;
 
-    private MultiValueMap<String, String> headers = new MultiValueMap<>();
+    private MultiMap<String, String> headers = new MultiMap<>();
 
     public JiawsHttpResponse(ResponseOutputStream out) {
         super(out);

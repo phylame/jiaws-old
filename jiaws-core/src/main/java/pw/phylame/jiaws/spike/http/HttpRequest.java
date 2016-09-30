@@ -27,7 +27,7 @@ import pw.phylame.jiaws.util.Exceptions;
 import pw.phylame.jiaws.util.HttpException;
 import pw.phylame.jiaws.util.NumberUtils;
 import pw.phylame.ycl.util.DateUtils;
-import pw.phylame.ycl.util.MultiValueMap;
+import pw.phylame.ycl.util.MultiMap;
 import pw.phylame.ycl.util.Provider;
 import pw.phylame.ycl.value.Lazy;
 
@@ -37,8 +37,7 @@ public class HttpRequest extends HttpObject {
     private String path;
 
     @Getter
-    private final MultiValueMap<String, String> parameters = new MultiValueMap<>(
-            new LinkedHashMap<String, Collection<String>>());
+    private final MultiMap<String, String> parameters = new MultiMap<>(new LinkedHashMap<String, Collection<String>>());
 
     @Getter
     private final List<Cookie> cookies = new LinkedList<>();

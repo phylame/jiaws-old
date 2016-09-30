@@ -44,7 +44,7 @@ import javax.servlet.http.Part;
 import lombok.NonNull;
 import lombok.val;
 import pw.phylame.jiaws.spike.http.HttpRequest;
-import pw.phylame.ycl.util.MultiValueMap;
+import pw.phylame.ycl.util.MultiMap;
 import pw.phylame.ycl.util.Provider;
 import pw.phylame.ycl.util.StringUtils;
 import pw.phylame.ycl.value.Lazy;
@@ -357,7 +357,7 @@ public class JiawsHttpRequest extends AbstractServletRequest implements HttpServ
     }
 
     @Override
-    protected MultiValueMap<String, String> getInternalParameters() {
+    protected MultiMap<String, String> getInternalParameters() {
         return httpRequest.getParameters();
     }
 
